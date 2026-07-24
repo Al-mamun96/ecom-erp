@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { requireTenant } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { logoutAction } from "../(auth)/actions";
+import { getUsage } from "@/lib/orders";
+import { Icon, type IconName } from "@/components/icons";
+
+const bdt = (n: unknown) => "৳" + Number(n).toLocaleString("en-US");
 
 function daysLeft(date: Date | null | undefined) {
   if (!date) return 0;
@@ -12,101 +15,142 @@ export default async function DashboardPage() {
   const { user, ctx } = await requireTenant();
   const business = user.business!;
   const sub = business.subscription;
-  const plan = sub?.plan;
-  const period = new Date().toISOString().slice(0, 7);
 
-  const usage = await prisma.usageCounter.findUnique({
-    where: { businessId_period: { businessId: ctx.businessId, period } },
-  });
-  const used = usage?.ordersUsed ?? 0;
-  const limit = plan?.orderLimit ?? 0;
-  const pct = limit ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+  const [usage, totalOrders, customerCount, revenueAgg, recent] = await Promise.all([
+    getUsage(ctx.businessId),
+    prisma.order.count({ where: { businessId: ctx.businessId } }),
+    prisma.customer.count({ where: { businessId: ctx.businessId } }),
+    prisma.order.aggregate({
+      where: { businessId: ctx.businessId, status: { not: "cancelled" } },
+      _sum: { total: true },
+    }),
+    prisma.order.findMany({
+      where: { businessId: ctx.businessId },
+      include: { customer: true },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    }),
+  ]);
+
+  const revenue = revenueAgg._sum.total ?? 0;
+
+  const stats: {
+    label: string;
+    value: string;
+    icon: IconName;
+    from: string;
+    to: string;
+  }[] = [
+    { label: "মোট বিক্রি", value: bdt(revenue), icon: "wallet", from: "from-violet-500", to: "to-purple-600" },
+    { label: "এই মাসের অর্ডার", value: `${usage.used}`, icon: "bag", from: "from-blue-500", to: "to-cyan-500" },
+    { label: "মোট অর্ডার", value: `${totalOrders}`, icon: "chart", from: "from-amber-500", to: "to-orange-500" },
+    { label: "কাস্টমার", value: `${customerCount}`, icon: "users", from: "from-emerald-500", to: "to-teal-600" },
+  ];
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <header className="flex items-center justify-between">
+    <div className="p-5 sm:p-8 max-w-6xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">{business.name}</h1>
-          <p className="text-sm text-black/50 dark:text-white/50">{user.name} • {user.email}</p>
+          <h1 className="text-2xl font-bold">স্বাগতম, {user.name.split(" ")[0]} 👋</h1>
+          <p className="text-sm text-black/50 dark:text-white/50">{business.name} — আজকের অবস্থা</p>
         </div>
-        <form action={logoutAction}>
-          <button className="rounded-lg border border-black/15 dark:border-white/20 px-3 py-1.5 text-sm hover:bg-black/5 dark:hover:bg-white/10">
-            লগআউট
-          </button>
-        </form>
-      </header>
+        <Link
+          href="/dashboard/orders/new"
+          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 text-white px-4 py-2.5 text-sm font-medium shadow-lg shadow-indigo-500/25 hover:opacity-95"
+        >
+          <Icon name="plus" width={18} height={18} /> নতুন অর্ডার
+        </Link>
+      </div>
 
-      {/* Trial / plan banner */}
-      <div className="mt-8 rounded-xl border border-black/10 dark:border-white/10 p-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">
-              বর্তমান প্ল্যান
-            </span>
-            <p className="mt-1 text-lg font-semibold">
-              {plan?.name ?? "—"}{" "}
-              <span className="text-sm font-normal text-black/50 dark:text-white/50">
-                ({sub?.status})
-              </span>
-            </p>
+      {/* Stat tiles */}
+      <div className="mt-6 grid gap-4 grid-cols-2 lg:grid-cols-4">
+        {stats.map((s) => (
+          <div
+            key={s.label}
+            className="relative overflow-hidden rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-5"
+          >
+            <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${s.from} ${s.to} flex items-center justify-center text-white shadow-lg`}>
+              <Icon name={s.icon} />
+            </div>
+            <div className="mt-4 text-2xl font-bold tracking-tight">{s.value}</div>
+            <div className="text-xs text-black/50 dark:text-white/50">{s.label}</div>
           </div>
+        ))}
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+        {/* Trial / plan card */}
+        <div className="lg:col-span-1 rounded-2xl p-6 text-white bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 shadow-xl shadow-violet-500/20">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium uppercase tracking-wider text-white/70">প্ল্যান</span>
+            {sub?.status === "trialing" && (
+              <span className="rounded-full bg-white/20 px-2.5 py-1 text-xs font-medium">
+                ট্রায়াল
+              </span>
+            )}
+          </div>
+          <div className="mt-2 text-2xl font-bold">{usage.planName ?? "—"}</div>
           {sub?.status === "trialing" && (
-            <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-3 py-1 text-sm font-medium">
-              ট্রায়াল — আর {daysLeft(sub.trialEndsAt)} দিন
-            </span>
+            <p className="text-sm text-white/80">আর {daysLeft(sub.trialEndsAt)} দিন বাকি</p>
+          )}
+
+          <div className="mt-5">
+            <div className="flex justify-between text-sm">
+              <span className="text-white/80">অর্ডার</span>
+              <span className="font-medium">
+                {usage.used} / {usage.limit}
+              </span>
+            </div>
+            <div className="mt-1.5 h-2 rounded-full bg-white/20 overflow-hidden">
+              <div className="h-full bg-white rounded-full" style={{ width: `${usage.pct}%` }} />
+            </div>
+          </div>
+
+          <Link
+            href="/dashboard/billing"
+            className="mt-5 inline-block rounded-lg bg-white/15 hover:bg-white/25 px-4 py-2 text-sm font-medium transition"
+          >
+            আপগ্রেড করুন →
+          </Link>
+        </div>
+
+        {/* Recent orders */}
+        <div className="lg:col-span-2 rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-6">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold">সাম্প্রতিক অর্ডার</h2>
+            <Link href="/dashboard/orders" className="text-sm text-indigo-500 hover:underline">
+              সব দেখুন
+            </Link>
+          </div>
+
+          {recent.length === 0 ? (
+            <div className="mt-6 text-center text-sm text-black/40 dark:text-white/40 py-8">
+              এখনো অর্ডার নেই।{" "}
+              <Link href="/dashboard/orders/new" className="text-indigo-500 hover:underline">
+                প্রথম অর্ডার যোগ করুন
+              </Link>
+            </div>
+          ) : (
+            <ul className="mt-4 divide-y divide-black/5 dark:divide-white/5">
+              {recent.map((o) => (
+                <li key={o.id} className="flex items-center justify-between py-3">
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono text-xs text-black/40 dark:text-white/40">{o.code}</span>
+                    <span className="text-sm">{o.customer?.name ?? "—"}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium">{bdt(o.total)}</span>
+                    <span className="text-[11px] rounded-full px-2 py-0.5 bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60">
+                      {o.status}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
-
-        <div className="mt-4">
-          <div className="flex justify-between text-sm">
-            <span>এই মাসের অর্ডার</span>
-            <span className="font-medium">
-              {used} / {limit}
-            </span>
-          </div>
-          <div className="mt-1 h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
-            <div
-              className={`h-full ${pct >= 95 ? "bg-red-500" : pct >= 80 ? "bg-amber-500" : "bg-emerald-500"}`}
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-        </div>
       </div>
-
-      {/* Module grid */}
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {[
-          { t: "Orders", d: "অর্ডার ম্যানেজ", href: "/dashboard/orders" },
-          { t: "Courier", d: "কুরিয়ার ও COD", href: null },
-          { t: "Customers", d: "কাস্টমার লেজার", href: null },
-          { t: "Products", d: "ক্যাটালগ", href: null },
-          { t: "Accounts", d: "আয়/ব্যয়, রিপোর্ট", href: null },
-          { t: "Payroll", d: "স্টাফ বেতন", href: null },
-        ].map((m) => {
-          const card = (
-            <div
-              className={`rounded-xl border border-black/10 dark:border-white/10 p-5 h-full ${
-                m.href ? "hover:border-foreground transition cursor-pointer" : ""
-              }`}
-            >
-              <h3 className="font-semibold">{m.t}</h3>
-              <p className="mt-1 text-sm text-black/60 dark:text-white/60">{m.d}</p>
-              {!m.href && (
-                <span className="mt-3 inline-block text-xs text-black/40 dark:text-white/40">
-                  শীঘ্রই
-                </span>
-              )}
-            </div>
-          );
-          return m.href ? (
-            <Link key={m.t} href={m.href}>
-              {card}
-            </Link>
-          ) : (
-            <div key={m.t}>{card}</div>
-          );
-        })}
-      </div>
-    </main>
+    </div>
   );
 }

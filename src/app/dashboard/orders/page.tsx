@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireTenant } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getUsage } from "@/lib/orders";
+import { Icon } from "@/components/icons";
 import { StatusSelect } from "./StatusSelect";
 
 const statusColor: Record<string, string> = {
@@ -31,29 +32,26 @@ export default async function OrdersPage() {
   const limitReached = usage.limit > 0 && usage.remaining === 0;
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
-      <div className="flex items-center justify-between gap-4">
+    <main className="p-5 sm:p-8 max-w-6xl mx-auto">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <Link href="/dashboard" className="text-sm text-black/50 dark:text-white/50">
-            ← ড্যাশবোর্ড
-          </Link>
-          <h1 className="mt-1 text-2xl font-bold">অর্ডার</h1>
-        </div>
-        <div className="text-right">
-          <p className="text-sm text-black/60 dark:text-white/60">
-            এই মাস: <span className="font-medium">{usage.used}</span> / {usage.limit}
+          <h1 className="text-2xl font-bold">অর্ডার</h1>
+          <p className="text-sm text-black/50 dark:text-white/50">
+            এই মাস: <span className="font-medium">{usage.used}</span> / {usage.limit} • মোট {orders.length} টি দেখানো হচ্ছে
           </p>
-          {limitReached ? (
-            <span className="text-sm text-red-600 dark:text-red-400">লিমিট শেষ — আপগ্রেড করুন</span>
-          ) : (
-            <Link
-              href="/dashboard/orders/new"
-              className="mt-1 inline-block rounded-lg bg-foreground text-background px-4 py-2 text-sm font-medium hover:opacity-90"
-            >
-              + নতুন অর্ডার
-            </Link>
-          )}
         </div>
+        {limitReached ? (
+          <span className="rounded-lg bg-red-500/10 text-red-600 dark:text-red-400 px-4 py-2 text-sm font-medium">
+            লিমিট শেষ — আপগ্রেড করুন
+          </span>
+        ) : (
+          <Link
+            href="/dashboard/orders/new"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 text-white px-4 py-2.5 text-sm font-medium shadow-lg shadow-indigo-500/25 hover:opacity-95"
+          >
+            <Icon name="plus" width={18} height={18} /> নতুন অর্ডার
+          </Link>
+        )}
       </div>
 
       {usage.pct >= 80 && !limitReached && (
@@ -67,7 +65,7 @@ export default async function OrdersPage() {
           এখনো কোনো অর্ডার নেই। উপরে <b>+ নতুন অর্ডার</b> দিয়ে শুরু করুন।
         </div>
       ) : (
-        <div className="mt-6 overflow-x-auto rounded-xl border border-black/10 dark:border-white/10">
+        <div className="mt-6 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950">
           <table className="w-full text-sm">
             <thead className="bg-black/[.03] dark:bg-white/[.03] text-left">
               <tr>
