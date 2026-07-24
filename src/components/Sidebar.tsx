@@ -23,6 +23,7 @@ const NAV: NavItem[] = [
   { href: "/dashboard/accounts", label: "Accounts", icon: "wallet", color: "text-violet-500 bg-violet-500/10" },
   { href: "/dashboard/payroll", label: "Payroll", icon: "coins", color: "text-rose-500 bg-rose-500/10" },
   { href: "/dashboard/reports", label: "Reports", icon: "chart", color: "text-cyan-500 bg-cyan-500/10" },
+  { href: "/dashboard/settings", label: "Settings", icon: "settings", color: "text-slate-500 bg-slate-500/10" },
 ];
 
 export function Sidebar({ businessName, userName }: { businessName: string; userName: string }) {

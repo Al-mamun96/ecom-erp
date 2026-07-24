@@ -22,5 +22,8 @@ a tenant table without a businessId. See `docs/ARCHITECTURE.md`.
 - `npm run db:studio` — Prisma Studio.
 
 ## Status
-Phase 0 done: scaffold + schema + landing page. Next: auth/signup → trial, then Orders.
+Feature-complete for launch: Auth+Trial, Orders (metered, product-linked w/ stock),
+Products, Customers, Accounts (P&L), Payroll, Reports (+CSV), Billing (manual gateway),
+Super-admin (/admin), Settings (profile/password/staff). Remaining: Courier (Steadfast,
+needs API key); automated payment gateway. Dev super-admin: admin@ecom.test / admin12345.
 See roadmap in `docs/PLAN.md`.
