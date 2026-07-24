@@ -1,0 +1,269 @@
+// Ecom-ERP — lite multi-tenant SaaS (single DB, business_id on every tenant row).
+// See docs/ARCHITECTURE.md and docs/SUBSCRIPTION.md.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Tenancy & auth
+// ---------------------------------------------------------------------------
+
+model Business {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users         User[]
+  subscription  Subscription?
+  usageCounters UsageCounter[]
+  invoices      Invoice[]
+  orders        Order[]
+  customers     Customer[]
+  products      Product[]
+  transactions  Transaction[]
+  employees     Employee[]
+
+  @@map("businesses")
+}
+
+enum UserRole {
+  OWNER
+  STAFF
+  SUPER_ADMIN
+}
+
+model User {
+  id           String   @id @default(cuid())
+  businessId   String?
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(OWNER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  business Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// Subscription & order metering  (docs/SUBSCRIPTION.md)
+// ---------------------------------------------------------------------------
+
+model Plan {
+  id            String   @id @default(cuid())
+  name          String
+  slug          String   @unique
+  orderLimit    Int // monthly orders allowed
+  price         Decimal  @db.Decimal(10, 2)
+  billingPeriod String   @default("monthly") // monthly | yearly
+  features      Json?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  subscriptions Subscription[]
+
+  @@map("plans")
+}
+
+enum SubscriptionStatus {
+  trialing
+  active
+  past_due
+  canceled
+}
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  businessId         String             @unique
+  planId             String
+  status             SubscriptionStatus @default(trialing)
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  trialEndsAt        DateTime?
+  gateway            String             @default("manual") // manual | sslcommerz | bkash | stripe
+  gatewayRef         String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  plan     Plan     @relation(fields: [planId], references: [id])
+
+  @@map("subscriptions")
+}
+
+model UsageCounter {
+  id         String   @id @default(cuid())
+  businessId String
+  period     String // "YYYY-MM"
+  ordersUsed Int      @default(0)
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, period])
+  @@map("usage_counters")
+}
+
+enum InvoiceStatus {
+  paid
+  due
+  failed
+}
+
+model Invoice {
+  id             String        @id @default(cuid())
+  businessId     String
+  subscriptionId String?
+  amount         Decimal       @db.Decimal(10, 2)
+  status         InvoiceStatus @default(due)
+  issuedAt       DateTime      @default(now())
+  paidAt         DateTime?
+  gatewayRef     String?
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@map("invoices")
+}
+
+// ---------------------------------------------------------------------------
+// Core shop data
+// ---------------------------------------------------------------------------
+
+model Customer {
+  id         String   @id @default(cuid())
+  businessId String
+  name       String
+  phone      String?
+  address    String?
+  note       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  orders   Order[]
+
+  @@index([businessId])
+  @@map("customers")
+}
+
+model Product {
+  id         String   @id @default(cuid())
+  businessId String
+  name       String
+  sku        String?
+  price      Decimal  @db.Decimal(10, 2) @default(0)
+  cost       Decimal  @db.Decimal(10, 2) @default(0)
+  stock      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  items    OrderItem[]
+
+  @@index([businessId])
+  @@map("products")
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  processing
+  shipped
+  delivered
+  returned
+  cancelled
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  businessId    String
+  code          String // human order no, unique per business
+  customerId    String?
+  status        OrderStatus @default(pending)
+  subtotal      Decimal     @db.Decimal(10, 2) @default(0)
+  deliveryFee   Decimal     @db.Decimal(10, 2) @default(0)
+  discount      Decimal     @db.Decimal(10, 2) @default(0)
+  total         Decimal     @db.Decimal(10, 2) @default(0)
+  paymentMethod String      @default("cod") // cod | prepaid
+  courier       String? // steadfast | pathao | redx
+  courierRef    String?
+  note          String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  business Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customer Customer?   @relation(fields: [customerId], references: [id])
+  items    OrderItem[]
+
+  @@unique([businessId, code])
+  @@index([businessId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String?
+  name      String
+  price     Decimal @db.Decimal(10, 2)
+  qty       Int     @default(1)
+
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+// Income / Expense cash book
+enum TxnType {
+  income
+  expense
+}
+
+model Transaction {
+  id         String   @id @default(cuid())
+  businessId String
+  type       TxnType
+  category   String
+  amount     Decimal  @db.Decimal(10, 2)
+  note       String?
+  date       DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@map("transactions")
+}
+
+// Payroll (salary-only)
+model Employee {
+  id         String   @id @default(cuid())
+  businessId String
+  name       String
+  phone      String?
+  role       String?
+  salary     Decimal  @db.Decimal(10, 2) @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@map("employees")
+}
