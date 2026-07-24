@@ -1,0 +1,7 @@
+/vendor
+/node_modules
+.env
+/public/build
+/storage/*.key
+.DS_Store
+_laravel/
