@@ -15,14 +15,14 @@ type NavItem = {
 };
 
 const NAV: NavItem[] = [
-  { href: "/dashboard", label: "ড্যাশবোর্ড", icon: "grid", color: "text-indigo-500 bg-indigo-500/10" },
-  { href: "/dashboard/orders", label: "অর্ডার", icon: "bag", color: "text-blue-500 bg-blue-500/10" },
-  { href: "/dashboard/products", label: "পণ্য", icon: "box", color: "text-amber-500 bg-amber-500/10", soon: true },
-  { href: "/dashboard/customers", label: "কাস্টমার", icon: "users", color: "text-emerald-500 bg-emerald-500/10", soon: true },
-  { href: "/dashboard/courier", label: "কুরিয়ার", icon: "truck", color: "text-orange-500 bg-orange-500/10", soon: true },
-  { href: "/dashboard/accounts", label: "হিসাব", icon: "wallet", color: "text-violet-500 bg-violet-500/10", soon: true },
-  { href: "/dashboard/payroll", label: "পেরোল", icon: "coins", color: "text-rose-500 bg-rose-500/10", soon: true },
-  { href: "/dashboard/reports", label: "রিপোর্ট", icon: "chart", color: "text-cyan-500 bg-cyan-500/10", soon: true },
+  { href: "/dashboard", label: "Dashboard", icon: "grid", color: "text-indigo-500 bg-indigo-500/10" },
+  { href: "/dashboard/orders", label: "Orders", icon: "bag", color: "text-blue-500 bg-blue-500/10" },
+  { href: "/dashboard/products", label: "Products", icon: "box", color: "text-amber-500 bg-amber-500/10", soon: true },
+  { href: "/dashboard/customers", label: "Customers", icon: "users", color: "text-emerald-500 bg-emerald-500/10", soon: true },
+  { href: "/dashboard/courier", label: "Courier", icon: "truck", color: "text-orange-500 bg-orange-500/10", soon: true },
+  { href: "/dashboard/accounts", label: "Accounts", icon: "wallet", color: "text-violet-500 bg-violet-500/10", soon: true },
+  { href: "/dashboard/payroll", label: "Payroll", icon: "coins", color: "text-rose-500 bg-rose-500/10", soon: true },
+  { href: "/dashboard/reports", label: "Reports", icon: "chart", color: "text-cyan-500 bg-cyan-500/10", soon: true },
 ];
 
 export function Sidebar({ businessName, userName }: { businessName: string; userName: string }) {
@@ -36,7 +36,7 @@ export function Sidebar({ businessName, userName }: { businessName: string; user
     <>
       {/* Mobile top bar */}
       <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 h-14 border-b border-black/10 dark:border-white/10 bg-[var(--background)]/80 backdrop-blur">
-        <button onClick={() => setOpen(true)} aria-label="মেনু" className="p-1.5">
+        <button onClick={() => setOpen(true)} aria-label="Menu" className="p-1.5">
           <Icon name="menu" />
         </button>
         <span className="font-bold bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">
@@ -88,7 +88,7 @@ export function Sidebar({ businessName, userName }: { businessName: string; user
                 </span>
                 <span className="flex-1">{item.label}</span>
                 {item.soon && (
-                  <span className="text-[10px] text-black/30 dark:text-white/30">শীঘ্রই</span>
+                  <span className="text-[10px] text-black/30 dark:text-white/30">Soon</span>
                 )}
                 {active && <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />}
               </div>
@@ -121,7 +121,7 @@ export function Sidebar({ businessName, userName }: { businessName: string; user
               <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-black/5 dark:bg-white/5">
                 <Icon name="logout" width={18} height={18} />
               </span>
-              লগআউট
+              Logout
             </button>
           </form>
         </div>

@@ -24,10 +24,10 @@ function currentPeriod() {
 export type AuthState = { error?: string };
 
 const signupSchema = z.object({
-  businessName: z.string().min(2, "ব্যবসার নাম দিন").max(80),
-  name: z.string().min(2, "আপনার নাম দিন").max(80),
-  email: z.string().email("সঠিক ইমেইল দিন").max(120),
-  password: z.string().min(6, "পাসওয়ার্ড অন্তত ৬ অক্ষর"),
+  businessName: z.string().min(2, "Enter a business name").max(80),
+  name: z.string().min(2, "Enter your name").max(80),
+  email: z.string().email("Enter a valid email").max(120),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export async function signupAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
@@ -38,15 +38,15 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
     password: formData.get("password"),
   });
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "তথ্য ঠিক নেই" };
+    return { error: parsed.error.issues[0]?.message ?? "Invalid details" };
   }
   const { businessName, name, email, password } = parsed.data;
 
   const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
-  if (existing) return { error: "এই ইমেইলে অ্যাকাউন্ট আছে — লগইন করুন" };
+  if (existing) return { error: "An account with this email already exists — log in" };
 
   const trialPlan = await prisma.plan.findUnique({ where: { slug: "trial" } });
-  if (!trialPlan) return { error: "Trial প্ল্যান পাওয়া যায়নি (seed চালান)" };
+  if (!trialPlan) return { error: "Trial plan not found (run the seed)" };
 
   // unique slug
   let slug = slugify(businessName);
@@ -90,8 +90,8 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
 }
 
 const loginSchema = z.object({
-  email: z.string().email("সঠিক ইমেইল দিন"),
-  password: z.string().min(1, "পাসওয়ার্ড দিন"),
+  email: z.string().email("Enter a valid email"),
+  password: z.string().min(1, "Enter your password"),
 });
 
 export async function loginAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
@@ -99,11 +99,11 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
     email: formData.get("email"),
     password: formData.get("password"),
   });
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "তথ্য ঠিক নেই" };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid details" };
 
   const user = await prisma.user.findUnique({ where: { email: parsed.data.email.toLowerCase() } });
   if (!user || !(await bcrypt.compare(parsed.data.password, user.passwordHash))) {
-    return { error: "ইমেইল বা পাসওয়ার্ড ভুল" };
+    return { error: "Wrong email or password" };
   }
 
   await createSession(user.id);

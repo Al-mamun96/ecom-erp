@@ -42,13 +42,13 @@ export function OrderForm() {
       {/* Customer */}
       <section>
         <h2 className="text-sm font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">
-          কাস্টমার
+          Customer
         </h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <Input name="customerName" label="নাম *" required />
-          <Input name="customerPhone" label="ফোন" placeholder="01XXXXXXXXX" />
+          <Input name="customerName" label="Name *" required />
+          <Input name="customerPhone" label="Phone" placeholder="01XXXXXXXXX" />
           <div className="sm:col-span-2">
-            <Input name="customerAddress" label="ঠিকানা" />
+            <Input name="customerAddress" label="Address" />
           </div>
         </div>
       </section>
@@ -57,14 +57,14 @@ export function OrderForm() {
       <section>
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">
-            আইটেম
+            Items
           </h2>
           <button
             type="button"
             onClick={() => setItems((p) => [...p, { ...emptyItem }])}
             className="text-sm font-medium underline"
           >
-            + আইটেম
+            + Item
           </button>
         </div>
         <div className="mt-3 space-y-2">
@@ -72,7 +72,7 @@ export function OrderForm() {
             <div key={i} className="grid grid-cols-12 gap-2">
               <input
                 className="col-span-6 rounded-lg border border-black/15 dark:border-white/20 bg-transparent px-3 py-2 text-sm outline-none focus:border-foreground"
-                placeholder="পণ্যের নাম"
+                placeholder="Product name"
                 value={it.name}
                 onChange={(e) => update(i, { name: e.target.value })}
               />
@@ -80,7 +80,7 @@ export function OrderForm() {
                 type="number"
                 min="0"
                 className="col-span-3 rounded-lg border border-black/15 dark:border-white/20 bg-transparent px-3 py-2 text-sm outline-none focus:border-foreground"
-                placeholder="দাম"
+                placeholder="Price"
                 value={it.price}
                 onChange={(e) => update(i, { price: e.target.value })}
               />
@@ -95,7 +95,7 @@ export function OrderForm() {
                 type="button"
                 onClick={() => setItems((p) => (p.length > 1 ? p.filter((_, idx) => idx !== i) : p))}
                 className="col-span-1 text-black/40 hover:text-red-500"
-                aria-label="মুছুন"
+                aria-label="Remove"
               >
                 ✕
               </button>
@@ -108,17 +108,17 @@ export function OrderForm() {
       <section className="grid gap-6 sm:grid-cols-2">
         <div className="space-y-3">
           <label className="block">
-            <span className="text-sm font-medium">পেমেন্ট</span>
+            <span className="text-sm font-medium">Payment</span>
             <select
               name="paymentMethod"
               className="mt-1 w-full rounded-lg border border-black/15 dark:border-white/20 bg-transparent px-3 py-2 text-sm"
             >
-              <option value="cod">COD (ক্যাশ অন ডেলিভারি)</option>
-              <option value="prepaid">প্রিপেইড</option>
+              <option value="cod">COD (Cash on Delivery)</option>
+              <option value="prepaid">Prepaid</option>
             </select>
           </label>
           <label className="block">
-            <span className="text-sm font-medium">কুরিয়ার</span>
+            <span className="text-sm font-medium">Courier</span>
             <select
               name="courier"
               className="mt-1 w-full rounded-lg border border-black/15 dark:border-white/20 bg-transparent px-3 py-2 text-sm"
@@ -129,13 +129,13 @@ export function OrderForm() {
               <option value="redx">RedX</option>
             </select>
           </label>
-          <Input name="note" label="নোট" />
+          <Input name="note" label="Note" />
         </div>
 
         <div className="rounded-xl border border-black/10 dark:border-white/10 p-4 space-y-2 text-sm">
-          <Row label="সাবটোটাল" value={`৳${subtotal.toLocaleString("en-US")}`} />
+          <Row label="Subtotal" value={`৳${subtotal.toLocaleString("en-US")}`} />
           <label className="flex items-center justify-between">
-            <span>ডেলিভারি ফি</span>
+            <span>Delivery fee</span>
             <input
               name="deliveryFee"
               type="number"
@@ -146,7 +146,7 @@ export function OrderForm() {
             />
           </label>
           <label className="flex items-center justify-between">
-            <span>ডিসকাউন্ট</span>
+            <span>Discount</span>
             <input
               name="discount"
               type="number"
@@ -157,7 +157,7 @@ export function OrderForm() {
             />
           </label>
           <div className="border-t border-black/10 dark:border-white/10 pt-2">
-            <Row label="মোট" value={`৳${total.toLocaleString("en-US")}`} bold />
+            <Row label="Total" value={`৳${total.toLocaleString("en-US")}`} bold />
           </div>
         </div>
       </section>
@@ -176,10 +176,10 @@ export function OrderForm() {
           disabled={pending}
           className="rounded-lg bg-foreground text-background px-5 py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50"
         >
-          {pending ? "সেভ হচ্ছে…" : "অর্ডার সেভ করুন"}
+          {pending ? "Saving…" : "Save order"}
         </button>
         <Link href="/dashboard/orders" className="text-sm text-black/60 dark:text-white/60">
-          বাতিল
+          Cancel
         </Link>
       </div>
     </form>

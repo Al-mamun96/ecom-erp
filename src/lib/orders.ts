@@ -52,7 +52,7 @@ export type NewOrderInput = {
 
 export class OrderLimitError extends Error {
   constructor(public limit: number) {
-    super(`এই মাসের অর্ডার লিমিট (${limit}) শেষ — প্ল্যান আপগ্রেড করুন`);
+    super(`Monthly order limit (${limit}) reached — please upgrade your plan`);
     this.name = "OrderLimitError";
   }
 }

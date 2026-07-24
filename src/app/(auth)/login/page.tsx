@@ -15,11 +15,11 @@ export default function LoginPage() {
         <Link href="/" className="block text-center text-sm text-black/50 dark:text-white/50">
           ← Ecom-ERP
         </Link>
-        <h1 className="mt-4 text-2xl font-bold text-center">লগইন</h1>
+        <h1 className="mt-4 text-2xl font-bold text-center">Log in</h1>
 
         <form action={action} className="mt-8 space-y-4">
           <label className="block">
-            <span className="text-sm font-medium">ইমেইল</span>
+            <span className="text-sm font-medium">Email</span>
             <input
               name="email"
               type="email"
@@ -29,7 +29,7 @@ export default function LoginPage() {
             />
           </label>
           <label className="block">
-            <span className="text-sm font-medium">পাসওয়ার্ড</span>
+            <span className="text-sm font-medium">Password</span>
             <input
               name="password"
               type="password"
@@ -49,14 +49,14 @@ export default function LoginPage() {
             disabled={pending}
             className="w-full rounded-lg bg-foreground text-background py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50 transition"
           >
-            {pending ? "…" : "লগইন"}
+            {pending ? "…" : "Log in"}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-black/60 dark:text-white/60">
-          নতুন?{" "}
+          New here?{" "}
           <Link href="/signup" className="font-medium underline">
-            ফ্রি ট্রায়াল
+            Free trial
           </Link>
         </p>
       </div>

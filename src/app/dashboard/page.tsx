@@ -41,10 +41,10 @@ export default async function DashboardPage() {
     from: string;
     to: string;
   }[] = [
-    { label: "মোট বিক্রি", value: bdt(revenue), icon: "wallet", from: "from-violet-500", to: "to-purple-600" },
-    { label: "এই মাসের অর্ডার", value: `${usage.used}`, icon: "bag", from: "from-blue-500", to: "to-cyan-500" },
-    { label: "মোট অর্ডার", value: `${totalOrders}`, icon: "chart", from: "from-amber-500", to: "to-orange-500" },
-    { label: "কাস্টমার", value: `${customerCount}`, icon: "users", from: "from-emerald-500", to: "to-teal-600" },
+    { label: "Total sales", value: bdt(revenue), icon: "wallet", from: "from-violet-500", to: "to-purple-600" },
+    { label: "Orders this month", value: `${usage.used}`, icon: "bag", from: "from-blue-500", to: "to-cyan-500" },
+    { label: "Total orders", value: `${totalOrders}`, icon: "chart", from: "from-amber-500", to: "to-orange-500" },
+    { label: "Customers", value: `${customerCount}`, icon: "users", from: "from-emerald-500", to: "to-teal-600" },
   ];
 
   return (
@@ -52,14 +52,14 @@ export default async function DashboardPage() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">স্বাগতম, {user.name.split(" ")[0]} 👋</h1>
-          <p className="text-sm text-black/50 dark:text-white/50">{business.name} — আজকের অবস্থা</p>
+          <h1 className="text-2xl font-bold">Welcome, {user.name.split(" ")[0]} 👋</h1>
+          <p className="text-sm text-black/50 dark:text-white/50">{business.name} — today&apos;s snapshot</p>
         </div>
         <Link
           href="/dashboard/orders/new"
           className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 text-white px-4 py-2.5 text-sm font-medium shadow-lg shadow-indigo-500/25 hover:opacity-95"
         >
-          <Icon name="plus" width={18} height={18} /> নতুন অর্ডার
+          <Icon name="plus" width={18} height={18} /> New order
         </Link>
       </div>
 
@@ -83,21 +83,21 @@ export default async function DashboardPage() {
         {/* Trial / plan card */}
         <div className="lg:col-span-1 rounded-2xl p-6 text-white bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 shadow-xl shadow-violet-500/20">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-wider text-white/70">প্ল্যান</span>
+            <span className="text-xs font-medium uppercase tracking-wider text-white/70">Plan</span>
             {sub?.status === "trialing" && (
               <span className="rounded-full bg-white/20 px-2.5 py-1 text-xs font-medium">
-                ট্রায়াল
+                Trial
               </span>
             )}
           </div>
           <div className="mt-2 text-2xl font-bold">{usage.planName ?? "—"}</div>
           {sub?.status === "trialing" && (
-            <p className="text-sm text-white/80">আর {daysLeft(sub.trialEndsAt)} দিন বাকি</p>
+            <p className="text-sm text-white/80">{daysLeft(sub.trialEndsAt)} days left</p>
           )}
 
           <div className="mt-5">
             <div className="flex justify-between text-sm">
-              <span className="text-white/80">অর্ডার</span>
+              <span className="text-white/80">Orders</span>
               <span className="font-medium">
                 {usage.used} / {usage.limit}
               </span>
@@ -111,24 +111,24 @@ export default async function DashboardPage() {
             href="/dashboard/billing"
             className="mt-5 inline-block rounded-lg bg-white/15 hover:bg-white/25 px-4 py-2 text-sm font-medium transition"
           >
-            আপগ্রেড করুন →
+            Upgrade →
           </Link>
         </div>
 
         {/* Recent orders */}
         <div className="lg:col-span-2 rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-6">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold">সাম্প্রতিক অর্ডার</h2>
+            <h2 className="font-semibold">Recent orders</h2>
             <Link href="/dashboard/orders" className="text-sm text-indigo-500 hover:underline">
-              সব দেখুন
+              View all
             </Link>
           </div>
 
           {recent.length === 0 ? (
             <div className="mt-6 text-center text-sm text-black/40 dark:text-white/40 py-8">
-              এখনো অর্ডার নেই।{" "}
+              No orders yet.{" "}
               <Link href="/dashboard/orders/new" className="text-indigo-500 hover:underline">
-                প্রথম অর্ডার যোগ করুন
+                Add your first order
               </Link>
             </div>
           ) : (

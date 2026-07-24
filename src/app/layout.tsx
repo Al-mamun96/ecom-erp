@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ecom-ERP — অর্ডার ও ব্যবসা ম্যানেজার",
+  title: "Ecom-ERP — Order & Business Manager",
   description:
-    "ছোট ই-কমার্স ব্যবসার জন্য হালকা multi-tenant SaaS — Orders, Courier, Income, Expense, Payroll, Accounts, Reports।",
+    "A lightweight multi-tenant SaaS for small e-commerce shops — Orders, Courier, Income, Expense, Payroll, Accounts, Reports.",
 };
 
 export default function RootLayout({

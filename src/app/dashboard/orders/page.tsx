@@ -35,46 +35,46 @@ export default async function OrdersPage() {
     <main className="p-5 sm:p-8 max-w-6xl mx-auto">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">অর্ডার</h1>
+          <h1 className="text-2xl font-bold">Orders</h1>
           <p className="text-sm text-black/50 dark:text-white/50">
-            এই মাস: <span className="font-medium">{usage.used}</span> / {usage.limit} • মোট {orders.length} টি দেখানো হচ্ছে
+            This month: <span className="font-medium">{usage.used}</span> / {usage.limit} • showing {orders.length}
           </p>
         </div>
         {limitReached ? (
           <span className="rounded-lg bg-red-500/10 text-red-600 dark:text-red-400 px-4 py-2 text-sm font-medium">
-            লিমিট শেষ — আপগ্রেড করুন
+            Limit reached — upgrade
           </span>
         ) : (
           <Link
             href="/dashboard/orders/new"
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 text-white px-4 py-2.5 text-sm font-medium shadow-lg shadow-indigo-500/25 hover:opacity-95"
           >
-            <Icon name="plus" width={18} height={18} /> নতুন অর্ডার
+            <Icon name="plus" width={18} height={18} /> New order
           </Link>
         )}
       </div>
 
       {usage.pct >= 80 && !limitReached && (
         <div className="mt-4 rounded-lg bg-amber-500/10 border border-amber-500/30 px-4 py-2 text-sm text-amber-700 dark:text-amber-300">
-          ⚠️ এই মাসের অর্ডার লিমিটের {usage.pct}% ব্যবহার হয়েছে।
+          ⚠️ You&apos;ve used {usage.pct}% of this month&apos;s order limit.
         </div>
       )}
 
       {orders.length === 0 ? (
         <div className="mt-10 rounded-xl border border-dashed border-black/15 dark:border-white/15 p-12 text-center text-black/50 dark:text-white/50">
-          এখনো কোনো অর্ডার নেই। উপরে <b>+ নতুন অর্ডার</b> দিয়ে শুরু করুন।
+          No orders yet. Use <b>+ New order</b> above to get started.
         </div>
       ) : (
         <div className="mt-6 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950">
           <table className="w-full text-sm">
             <thead className="bg-black/[.03] dark:bg-white/[.03] text-left">
               <tr>
-                <th className="px-4 py-3 font-medium">কোড</th>
-                <th className="px-4 py-3 font-medium">কাস্টমার</th>
-                <th className="px-4 py-3 font-medium">আইটেম</th>
-                <th className="px-4 py-3 font-medium text-right">মোট</th>
-                <th className="px-4 py-3 font-medium">পেমেন্ট</th>
-                <th className="px-4 py-3 font-medium">স্ট্যাটাস</th>
+                <th className="px-4 py-3 font-medium">Code</th>
+                <th className="px-4 py-3 font-medium">Customer</th>
+                <th className="px-4 py-3 font-medium">Items</th>
+                <th className="px-4 py-3 font-medium text-right">Total</th>
+                <th className="px-4 py-3 font-medium">Payment</th>
+                <th className="px-4 py-3 font-medium">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -87,7 +87,7 @@ export default async function OrdersPage() {
                       <div className="text-xs text-black/40 dark:text-white/40">{o.customer.phone}</div>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-black/60 dark:text-white/60">{o.items.length} টি</td>
+                  <td className="px-4 py-3 text-black/60 dark:text-white/60">{o.items.length}</td>
                   <td className="px-4 py-3 text-right font-medium">{bdt(o.total)}</td>
                   <td className="px-4 py-3 uppercase text-xs">{o.paymentMethod}</td>
                   <td className="px-4 py-3">

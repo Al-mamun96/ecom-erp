@@ -13,7 +13,7 @@ const itemSchema = z.object({
 });
 
 const schema = z.object({
-  customerName: z.string().min(2, "কাস্টমারের নাম দিন").max(80),
+  customerName: z.string().min(2, "Enter the customer's name").max(80),
   customerPhone: z.string().max(20).optional().or(z.literal("")),
   customerAddress: z.string().max(300).optional().or(z.literal("")),
   paymentMethod: z.enum(["cod", "prepaid"]).default("cod"),
@@ -33,13 +33,13 @@ export async function createOrderAction(
   const { ctx } = await requireTenant();
 
   const parsed = schema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "তথ্য ঠিক নেই" };
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid details" };
 
   let items;
   try {
-    items = z.array(itemSchema).min(1, "অন্তত একটি আইটেম দিন").parse(JSON.parse(parsed.data.items));
+    items = z.array(itemSchema).min(1, "Add at least one item").parse(JSON.parse(parsed.data.items));
   } catch (e) {
-    return { error: e instanceof z.ZodError ? e.issues[0].message : "আইটেম তালিকা ঠিক নেই" };
+    return { error: e instanceof z.ZodError ? e.issues[0].message : "Item list is invalid" };
   }
 
   try {
@@ -59,7 +59,7 @@ export async function createOrderAction(
   } catch (e) {
     if (e instanceof OrderLimitError) return { error: e.message };
     console.error(e);
-    return { error: "অর্ডার তৈরি করা যায়নি" };
+    return { error: "Could not create the order" };
   }
 
   revalidatePath("/dashboard/orders");
