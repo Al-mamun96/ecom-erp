@@ -10,6 +10,7 @@ const itemSchema = z.object({
   name: z.string().min(1),
   price: z.coerce.number().min(0),
   qty: z.coerce.number().int().min(1),
+  productId: z.string().optional().nullable(),
 });
 
 const schema = z.object({
@@ -82,10 +83,40 @@ export async function updateOrderStatusAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const status = statusSchema.parse(formData.get("status"));
 
-  // scoped update — never touch another tenant's row
-  await prisma.order.updateMany({
-    where: { id, businessId: ctx.businessId },
-    data: { status },
+  await prisma.$transaction(async (tx) => {
+    const order = await tx.order.findFirst({
+      where: { id, businessId: ctx.businessId },
+      include: { items: true },
+    });
+    if (!order) return;
+
+    const wasCancelled = order.status === "cancelled";
+    const nowCancelled = status === "cancelled";
+
+    // Return stock when an order is cancelled; take it back if un-cancelled.
+    if (!wasCancelled && nowCancelled) {
+      for (const it of order.items) {
+        if (it.productId) {
+          await tx.product.updateMany({
+            where: { id: it.productId, businessId: ctx.businessId },
+            data: { stock: { increment: it.qty } },
+          });
+        }
+      }
+    } else if (wasCancelled && !nowCancelled) {
+      for (const it of order.items) {
+        if (it.productId) {
+          await tx.product.updateMany({
+            where: { id: it.productId, businessId: ctx.businessId },
+            data: { stock: { decrement: it.qty } },
+          });
+        }
+      }
+    }
+
+    await tx.order.update({ where: { id: order.id }, data: { status } });
   });
+
   revalidatePath("/dashboard/orders");
+  revalidatePath("/dashboard/products");
 }

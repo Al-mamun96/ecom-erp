@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { createOrderAction, type OrderFormState } from "../actions";
 
-type Item = { name: string; price: string; qty: string };
-const emptyItem: Item = { name: "", price: "", qty: "1" };
+export type ProductOption = { id: string; name: string; price: number; stock: number };
+
+type Item = { name: string; price: string; qty: string; productId: string | null };
+const emptyItem: Item = { name: "", price: "", qty: "1", productId: null };
 const initial: OrderFormState = {};
 
-export function OrderForm() {
+export function OrderForm({ products }: { products: ProductOption[] }) {
   const router = useRouter();
   const [state, action, pending] = useActionState(createOrderAction, initial);
   const [items, setItems] = useState<Item[]>([{ ...emptyItem }]);
@@ -30,11 +32,27 @@ export function OrderForm() {
   const itemsJson = JSON.stringify(
     items
       .filter((it) => it.name.trim())
-      .map((it) => ({ name: it.name.trim(), price: Number(it.price) || 0, qty: Number(it.qty) || 1 })),
+      .map((it) => ({
+        name: it.name.trim(),
+        price: Number(it.price) || 0,
+        qty: Number(it.qty) || 1,
+        productId: it.productId,
+      })),
   );
 
   function update(i: number, patch: Partial<Item>) {
     setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
+  }
+
+  // When a typed/selected name exactly matches a catalog product, link it and
+  // auto-fill the price. Free-text (custom) items stay unlinked.
+  function onNameChange(i: number, name: string) {
+    const match = products.find((p) => p.name.toLowerCase() === name.trim().toLowerCase());
+    if (match) {
+      update(i, { name, productId: match.id, price: String(match.price) });
+    } else {
+      update(i, { name, productId: null });
+    }
   }
 
   return (
@@ -71,10 +89,11 @@ export function OrderForm() {
           {items.map((it, i) => (
             <div key={i} className="grid grid-cols-12 gap-2">
               <input
+                list="product-list"
                 className="col-span-6 rounded-lg border border-black/15 dark:border-white/20 bg-transparent px-3 py-2 text-sm outline-none focus:border-foreground"
-                placeholder="Product name"
+                placeholder="Pick a product or type…"
                 value={it.name}
-                onChange={(e) => update(i, { name: e.target.value })}
+                onChange={(e) => onNameChange(i, e.target.value)}
               />
               <input
                 type="number"
@@ -161,6 +180,14 @@ export function OrderForm() {
           </div>
         </div>
       </section>
+
+      <datalist id="product-list">
+        {products.map((p) => (
+          <option key={p.id} value={p.name}>
+            {`৳${p.price} · stock ${p.stock}`}
+          </option>
+        ))}
+      </datalist>
 
       <input type="hidden" name="items" value={itemsJson} />
 

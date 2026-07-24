@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireTenant } from "@/lib/auth";
 import { getUsage } from "@/lib/orders";
+import { prisma } from "@/lib/prisma";
 import { OrderForm } from "./OrderForm";
 
 export default async function NewOrderPage() {
@@ -12,6 +13,18 @@ export default async function NewOrderPage() {
   if (usage.limit > 0 && usage.remaining === 0) {
     redirect("/dashboard/orders");
   }
+
+  const products = await prisma.product.findMany({
+    where: { businessId: ctx.businessId },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, price: true, stock: true },
+  });
+  const productOptions = products.map((p) => ({
+    id: p.id,
+    name: p.name,
+    price: Number(p.price),
+    stock: p.stock,
+  }));
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -24,7 +37,7 @@ export default async function NewOrderPage() {
           Remaining: {usage.remaining} / {usage.limit}
         </span>
       </div>
-      <OrderForm />
+      <OrderForm products={productOptions} />
     </main>
   );
 }
