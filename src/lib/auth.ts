@@ -20,7 +20,9 @@ export async function requireTenant(): Promise<{
   user: NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
 }> {
   const user = await getCurrentUser();
-  if (!user || !user.businessId) redirect("/login");
+  if (!user) redirect("/login");
+  if (user.role === "SUPER_ADMIN") redirect("/admin");
+  if (!user.businessId) redirect("/login");
   return {
     user,
     ctx: {

@@ -107,7 +107,7 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
   }
 
   await createSession(user.id);
-  redirect("/dashboard");
+  redirect(user.role === "SUPER_ADMIN" ? "/admin" : "/dashboard");
 }
 
 export async function logoutAction() {

@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -19,6 +20,25 @@ async function main() {
     });
   }
   console.log(`Seeded ${plans.length} plans.`);
+
+  // Super-admin (from env, optional). businessId stays null.
+  const email = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD;
+  if (email && password) {
+    await prisma.user.upsert({
+      where: { email: email.toLowerCase() },
+      update: { role: "SUPER_ADMIN" },
+      create: {
+        email: email.toLowerCase(),
+        name: "Super Admin",
+        passwordHash: await bcrypt.hash(password, 10),
+        role: "SUPER_ADMIN",
+      },
+    });
+    console.log(`Seeded super-admin: ${email}`);
+  } else {
+    console.log("Skipped super-admin (set ADMIN_EMAIL and ADMIN_PASSWORD to create one).");
+  }
 }
 
 main()
