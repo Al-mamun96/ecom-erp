@@ -17,8 +17,8 @@ type NavItem = {
 const NAV: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: "grid", color: "text-indigo-500 bg-indigo-500/10" },
   { href: "/dashboard/orders", label: "Orders", icon: "bag", color: "text-blue-500 bg-blue-500/10" },
-  { href: "/dashboard/products", label: "Products", icon: "box", color: "text-amber-500 bg-amber-500/10", soon: true },
-  { href: "/dashboard/customers", label: "Customers", icon: "users", color: "text-emerald-500 bg-emerald-500/10", soon: true },
+  { href: "/dashboard/products", label: "Products", icon: "box", color: "text-amber-500 bg-amber-500/10" },
+  { href: "/dashboard/customers", label: "Customers", icon: "users", color: "text-emerald-500 bg-emerald-500/10" },
   { href: "/dashboard/courier", label: "Courier", icon: "truck", color: "text-orange-500 bg-orange-500/10", soon: true },
   { href: "/dashboard/accounts", label: "Accounts", icon: "wallet", color: "text-violet-500 bg-violet-500/10", soon: true },
   { href: "/dashboard/payroll", label: "Payroll", icon: "coins", color: "text-rose-500 bg-rose-500/10", soon: true },
