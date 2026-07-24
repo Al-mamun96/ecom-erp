@@ -30,8 +30,9 @@ model Business {
   orders        Order[]
   customers     Customer[]
   products      Product[]
-  transactions  Transaction[]
-  employees     Employee[]
+  transactions   Transaction[]
+  employees      Employee[]
+  salaryPayments SalaryPayment[]
 
   @@map("businesses")
 }
@@ -262,8 +263,26 @@ model Employee {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  payments SalaryPayment[]
 
   @@index([businessId])
   @@map("employees")
+}
+
+model SalaryPayment {
+  id         String   @id @default(cuid())
+  businessId String
+  employeeId String
+  amount     Decimal  @db.Decimal(10, 2)
+  forMonth   String // "YYYY-MM"
+  note       String?
+  paidAt     DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([employeeId])
+  @@map("salary_payments")
 }
