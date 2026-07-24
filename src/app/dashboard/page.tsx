@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireTenant } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { logoutAction } from "../(auth)/actions";
@@ -72,26 +73,39 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Module grid (placeholders for next phases) */}
+      {/* Module grid */}
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[
-          { t: "Orders", d: "অর্ডার ম্যানেজ", soon: false },
-          { t: "Courier", d: "কুরিয়ার ও COD", soon: true },
-          { t: "Customers", d: "কাস্টমার লেজার", soon: true },
-          { t: "Products", d: "ক্যাটালগ", soon: true },
-          { t: "Accounts", d: "আয়/ব্যয়, রিপোর্ট", soon: true },
-          { t: "Payroll", d: "স্টাফ বেতন", soon: true },
-        ].map((m) => (
-          <div key={m.t} className="rounded-xl border border-black/10 dark:border-white/10 p-5">
-            <h3 className="font-semibold">{m.t}</h3>
-            <p className="mt-1 text-sm text-black/60 dark:text-white/60">{m.d}</p>
-            {m.soon && (
-              <span className="mt-3 inline-block text-xs text-black/40 dark:text-white/40">
-                শীঘ্রই
-              </span>
-            )}
-          </div>
-        ))}
+          { t: "Orders", d: "অর্ডার ম্যানেজ", href: "/dashboard/orders" },
+          { t: "Courier", d: "কুরিয়ার ও COD", href: null },
+          { t: "Customers", d: "কাস্টমার লেজার", href: null },
+          { t: "Products", d: "ক্যাটালগ", href: null },
+          { t: "Accounts", d: "আয়/ব্যয়, রিপোর্ট", href: null },
+          { t: "Payroll", d: "স্টাফ বেতন", href: null },
+        ].map((m) => {
+          const card = (
+            <div
+              className={`rounded-xl border border-black/10 dark:border-white/10 p-5 h-full ${
+                m.href ? "hover:border-foreground transition cursor-pointer" : ""
+              }`}
+            >
+              <h3 className="font-semibold">{m.t}</h3>
+              <p className="mt-1 text-sm text-black/60 dark:text-white/60">{m.d}</p>
+              {!m.href && (
+                <span className="mt-3 inline-block text-xs text-black/40 dark:text-white/40">
+                  শীঘ্রই
+                </span>
+              )}
+            </div>
+          );
+          return m.href ? (
+            <Link key={m.t} href={m.href}>
+              {card}
+            </Link>
+          ) : (
+            <div key={m.t}>{card}</div>
+          );
+        })}
       </div>
     </main>
   );
