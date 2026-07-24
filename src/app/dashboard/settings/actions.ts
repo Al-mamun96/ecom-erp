@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { requireTenant } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { encryptSecret } from "@/lib/crypto";
 
 export type SettingsState = { error?: string; ok?: boolean; message?: string };
 
@@ -98,6 +99,35 @@ export async function addStaffAction(
 
   revalidatePath("/dashboard/settings");
   return { ok: true, message: "Staff member added" };
+}
+
+// --- Courier (Steadfast) credentials ---
+const courierSchema = z.object({
+  apiKey: z.string().min(4, "Enter the API key").max(200),
+  secretKey: z.string().min(4, "Enter the secret key").max(200),
+});
+
+export async function saveCourierAction(
+  _prev: SettingsState,
+  formData: FormData,
+): Promise<SettingsState> {
+  const { ctx } = await requireTenant();
+  if (ctx.role !== "OWNER") return { error: "Only the owner can set courier keys" };
+
+  const parsed = courierSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid details" };
+
+  await prisma.business.update({
+    where: { id: ctx.businessId },
+    data: {
+      steadfastApiKey: encryptSecret(parsed.data.apiKey),
+      steadfastSecretKey: encryptSecret(parsed.data.secretKey),
+    },
+  });
+
+  revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard/courier");
+  return { ok: true, message: "Steadfast keys saved" };
 }
 
 export async function removeStaffAction(formData: FormData) {

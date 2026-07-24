@@ -7,6 +7,13 @@ export default async function SettingsPage() {
   const business = user.business!;
   const isOwner = ctx.role === "OWNER";
 
+  const courierConfigured = !!(
+    await prisma.business.findUnique({
+      where: { id: ctx.businessId },
+      select: { steadfastApiKey: true },
+    })
+  )?.steadfastApiKey;
+
   const staffRows = isOwner
     ? await prisma.user.findMany({
         where: { businessId: ctx.businessId },
@@ -32,6 +39,7 @@ export default async function SettingsPage() {
         business={{ name: business.name, phone: business.phone, address: business.address }}
         staff={staff}
         isOwner={isOwner}
+        courierConfigured={courierConfigured}
       />
     </main>
   );

@@ -6,6 +6,7 @@ import {
   changePasswordAction,
   addStaffAction,
   removeStaffAction,
+  saveCourierAction,
   type SettingsState,
 } from "./actions";
 
@@ -17,17 +18,42 @@ export function SettingsClient({
   business,
   staff,
   isOwner,
+  courierConfigured,
 }: {
   business: { name: string; phone: string | null; address: string | null };
   staff: StaffDTO[];
   isOwner: boolean;
+  courierConfigured: boolean;
 }) {
   return (
     <div className="mt-6 space-y-6">
       {isOwner && <BusinessCard business={business} />}
       <PasswordCard />
+      {isOwner && <CourierCard configured={courierConfigured} />}
       {isOwner && <StaffCard staff={staff} />}
     </div>
+  );
+}
+
+function CourierCard({ configured }: { configured: boolean }) {
+  const [state, action, pending] = useActionState(saveCourierAction, initial);
+  return (
+    <Card
+      title="Courier — Steadfast"
+      desc="Paste your Steadfast API credentials to enable sending parcels. Stored encrypted."
+    >
+      {configured && (
+        <p className="mb-3 text-sm text-emerald-600 dark:text-emerald-400">
+          ✓ Connected. Re-enter keys below to update.
+        </p>
+      )}
+      <form action={action} className="space-y-3 max-w-lg">
+        <Field name="apiKey" label="API Key" required />
+        <Field name="secretKey" label="Secret Key" type="password" required />
+        <Msg state={state} />
+        <SaveBtn pending={pending} label="Save keys" />
+      </form>
+    </Card>
   );
 }
 

@@ -20,6 +20,9 @@ model Business {
   slug      String   @unique
   phone     String?
   address   String?
+  // Steadfast courier credentials (encrypted at rest — see src/lib/crypto.ts)
+  steadfastApiKey    String?
+  steadfastSecretKey String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -199,9 +202,11 @@ model Order {
   discount      Decimal     @db.Decimal(10, 2) @default(0)
   total         Decimal     @db.Decimal(10, 2) @default(0)
   paymentMethod String      @default("cod") // cod | prepaid
-  courier       String? // steadfast | pathao | redx
-  courierRef    String?
-  note          String?
+  courier         String? // steadfast | pathao | redx
+  courierRef      String? // consignment id
+  courierTracking String? // tracking code
+  courierStatus   String? // delivery status from courier
+  note            String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
