@@ -15,7 +15,7 @@ export default function SignupPage() {
         <Link href="/" className="block text-center text-sm text-black/50 dark:text-white/50">
           ← Ecom-ERP
         </Link>
-        <h1 className="mt-4 text-2xl font-bold text-center">Start your 14-day free trial</h1>
+        <h1 className="mt-4 text-2xl font-bold text-center">Start your 7-day free trial</h1>
         <p className="mt-1 text-sm text-center text-black/60 dark:text-white/60">
           Create an account — no card required.
         </p>

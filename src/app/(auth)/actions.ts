@@ -55,7 +55,7 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+  const trialEndsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   const user = await prisma.$transaction(async (tx) => {
     const business = await tx.business.create({ data: { name: businessName, slug } });

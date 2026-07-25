@@ -10,7 +10,7 @@ const modules = [
 ];
 
 const plans = [
-  { name: "Trial", orders: "50 orders", price: "Free", note: "14 days", highlight: false },
+  { name: "Trial", orders: "50 orders", price: "Free", note: "7 days", highlight: false },
   { name: "Starter", orders: "500 orders/mo", price: "৳800", note: "monthly", highlight: false },
   { name: "Growth", orders: "1,500 orders/mo", price: "৳1,500", note: "monthly", highlight: true },
   { name: "Business", orders: "2,000 orders/mo", price: "৳2,500", note: "monthly", highlight: false },
@@ -34,7 +34,7 @@ export default function Home() {
             href="/signup"
             className="rounded-lg bg-foreground text-background px-5 py-2.5 text-sm font-medium hover:opacity-90 transition"
           >
-            Start 14-day free trial
+            Start 7-day free trial
           </Link>
           <Link
             href="/login"

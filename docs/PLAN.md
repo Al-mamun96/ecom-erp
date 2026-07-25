@@ -35,7 +35,7 @@ order-metering layer."* Reuse = weeks saved.
 
 ## 2. Core modules (only these)
 
-1. **Auth & Tenant** — signup → creates a business (tenant) → 14-day trial.
+1. **Auth & Tenant** — signup → creates a business (tenant) → 7-day trial.
 2. **Orders** — create/edit, statuses, customer info, COD.
 3. **Courier** — Steadfast/Pathao/RedX send + webhook status + COD reconcile
    (port straight from Eltiz).
@@ -59,7 +59,7 @@ the DB/bandwidth cost per tenant is tiny; the meter is a value/pricing lever).
 
 | Plan | Orders / month | Suggested price (BDT/mo) |
 |---|---|---|
-| Trial | 50 (14 days) | Free |
+| Trial | 50 (7 days) | Free |
 | Starter | 500 | 500–800 |
 | Growth | 1,500 | 1,200–1,800 |
 | Business | 2,000 | 1,800–2,500 |

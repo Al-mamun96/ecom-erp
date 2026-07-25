@@ -25,7 +25,7 @@ invoices
 - Before creating: `if orders_used >= plan.order_limit → block` with an upgrade CTA.
 - Soft-warn banners at **80%** and **95%**.
 - Counter resets each billing month (a scheduled job seeds the new period row).
-- Trial: a temporary plan with `order_limit = 50`, `trial_ends_at = +14 days`.
+- Trial: a temporary plan with `order_limit = 50`, `trial_ends_at = +7 days`.
 
 ## Billing
 - **Simplest launch (BD):** `manual` gateway — you activate a subscription after a
