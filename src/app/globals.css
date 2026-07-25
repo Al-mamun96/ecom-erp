@@ -24,3 +24,26 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Print / Save-as-PDF: drop app chrome, force a clean light page. */
+@media print {
+  aside,
+  .no-print {
+    display: none !important;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  * {
+    color: #000 !important;
+    box-shadow: none !important;
+  }
+  .print-area {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+  @page {
+    margin: 14mm;
+  }
+}
