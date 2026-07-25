@@ -84,6 +84,9 @@ export function ProductsClient({ products }: { products: ProductDTO[] }) {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-3">
+                      <a href={`/dashboard/products/${p.id}`} className="text-black/60 dark:text-white/60 hover:underline text-xs">
+                        View
+                      </a>
                       <button
                         onClick={() => openEdit(p)}
                         className="text-indigo-500 hover:underline text-xs"

@@ -91,6 +91,9 @@ export function PayrollClient({ employees, month }: { employees: EmployeeDTO[]; 
                         >
                           Pay
                         </button>
+                        <a href={`/dashboard/payroll/${e.id}`} className="text-black/60 dark:text-white/60 hover:underline text-xs">
+                          View
+                        </a>
                         <button
                           onClick={() => {
                             setEditing(e);

@@ -1,21 +1,46 @@
 import Link from "next/link";
+import type { Prisma } from "@prisma/client";
 import { requireTenant } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getSteadfastCreds } from "@/lib/courier";
+import { Filters } from "@/components/Filters";
 import { SendButton, RefreshButton } from "./CourierButtons";
 
 const bdt = (n: unknown) => "৳" + Number(n).toLocaleString("en-US");
 
-export default async function CourierPage() {
+export default async function CourierPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; sent?: string }>;
+}) {
   const { ctx } = await requireTenant();
+  const sp = await searchParams;
+  const q = (sp.q ?? "").trim();
+  const sentFilter = sp.sent; // "yes" | "no"
+
+  const where: Prisma.OrderWhereInput = {
+    businessId: ctx.businessId,
+    status: { notIn: ["cancelled", "delivered"] },
+    ...(sentFilter === "yes" ? { courierRef: { not: null } } : {}),
+    ...(sentFilter === "no" ? { courierRef: null } : {}),
+    ...(q
+      ? {
+          OR: [
+            { code: { contains: q, mode: "insensitive" } },
+            { customer: { is: { name: { contains: q, mode: "insensitive" } } } },
+            { customer: { is: { phone: { contains: q } } } },
+          ],
+        }
+      : {}),
+  };
 
   const [creds, orders] = await Promise.all([
     getSteadfastCreds(ctx.businessId),
     prisma.order.findMany({
-      where: { businessId: ctx.businessId, status: { notIn: ["cancelled", "delivered"] } },
+      where,
       include: { customer: true },
       orderBy: { createdAt: "desc" },
-      take: 100,
+      take: 200,
     }),
   ]);
 
@@ -27,6 +52,24 @@ export default async function CourierPage() {
       <p className="text-sm text-black/50 dark:text-white/50">
         Send COD parcels to Steadfast and track delivery status.
       </p>
+
+      <div className="mt-4">
+        <Filters
+          searchValue={q}
+          searchPlaceholder="Search code, customer, phone…"
+          selects={[
+            {
+              name: "sent",
+              value: sentFilter ?? "",
+              options: [
+                { value: "", label: "All" },
+                { value: "no", label: "Not sent" },
+                { value: "yes", label: "Sent" },
+              ],
+            },
+          ]}
+        />
+      </div>
 
       {!configured && (
         <div className="mt-4 rounded-xl bg-amber-500/10 border border-amber-500/30 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">

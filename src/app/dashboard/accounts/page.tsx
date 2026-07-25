@@ -1,29 +1,50 @@
+import type { Prisma } from "@prisma/client";
 import { requireTenant } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Icon, type IconName } from "@/components/icons";
+import { Filters } from "@/components/Filters";
 import { AddTransaction } from "./AddTransaction";
 import { deleteTransactionAction } from "./actions";
 
 const bdt = (n: unknown) => "৳" + Number(n).toLocaleString("en-US");
 
-export default async function AccountsPage() {
+export default async function AccountsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; type?: string }>;
+}) {
   const { ctx } = await requireTenant();
+  const sp = await searchParams;
+  const q = (sp.q ?? "").trim();
+  const typeFilter = sp.type === "income" || sp.type === "expense" ? sp.type : undefined;
 
-  const [salesAgg, txns] = await Promise.all([
+  const listWhere: Prisma.TransactionWhereInput = {
+    businessId: ctx.businessId,
+    ...(typeFilter ? { type: typeFilter } : {}),
+    ...(q
+      ? {
+          OR: [
+            { category: { contains: q, mode: "insensitive" } },
+            { note: { contains: q, mode: "insensitive" } },
+          ],
+        }
+      : {}),
+  };
+
+  // Summary always reflects all-time totals (independent of list filters).
+  const [salesAgg, incomeAgg, expenseAgg, txns] = await Promise.all([
     prisma.order.aggregate({
       where: { businessId: ctx.businessId, status: { not: "cancelled" } },
       _sum: { total: true },
     }),
-    prisma.transaction.findMany({
-      where: { businessId: ctx.businessId },
-      orderBy: { date: "desc" },
-      take: 200,
-    }),
+    prisma.transaction.aggregate({ where: { businessId: ctx.businessId, type: "income" }, _sum: { amount: true } }),
+    prisma.transaction.aggregate({ where: { businessId: ctx.businessId, type: "expense" }, _sum: { amount: true } }),
+    prisma.transaction.findMany({ where: listWhere, orderBy: { date: "desc" }, take: 300 }),
   ]);
 
   const sales = Number(salesAgg._sum.total ?? 0);
-  const income = txns.filter((t) => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
-  const expense = txns.filter((t) => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
+  const income = Number(incomeAgg._sum.amount ?? 0);
+  const expense = Number(expenseAgg._sum.amount ?? 0);
   const net = sales + income - expense;
 
   const cards: { label: string; value: string; icon: IconName; from: string; to: string }[] = [
@@ -68,11 +89,29 @@ export default async function AccountsPage() {
       </div>
 
       {/* Cash book */}
-      <h2 className="mt-8 font-semibold">Cash book</h2>
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-semibold">Cash book</h2>
+        <Filters
+          searchValue={q}
+          searchPlaceholder="Search category or note…"
+          selects={[
+            {
+              name: "type",
+              value: typeFilter ?? "",
+              options: [
+                { value: "", label: "All types" },
+                { value: "income", label: "Income" },
+                { value: "expense", label: "Expense" },
+              ],
+            },
+          ]}
+        />
+      </div>
       {txns.length === 0 ? (
         <div className="mt-3 rounded-2xl border border-dashed border-black/15 dark:border-white/15 p-12 text-center text-black/50 dark:text-white/50">
-          No transactions yet. Click <b>Add transaction</b> to record income or an expense.
-          <p className="mt-1 text-xs">Order sales are counted automatically in the summary above.</p>
+          {q || typeFilter ? "No transactions match your filters." : (
+            <>No transactions yet. Click <b>Add transaction</b> to record income or an expense.</>
+          )}
         </div>
       ) : (
         <div className="mt-3 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950">

@@ -1,15 +1,34 @@
 import Link from "next/link";
+import type { Prisma } from "@prisma/client";
 import { requireTenant } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Filters } from "@/components/Filters";
 import { NewCustomer } from "./NewCustomer";
 
 const bdt = (n: unknown) => "৳" + Number(n).toLocaleString("en-US");
 
-export default async function CustomersPage() {
+export default async function CustomersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
   const { ctx } = await requireTenant();
+  const q = ((await searchParams).q ?? "").trim();
+
+  const where: Prisma.CustomerWhereInput = {
+    businessId: ctx.businessId,
+    ...(q
+      ? {
+          OR: [
+            { name: { contains: q, mode: "insensitive" } },
+            { phone: { contains: q } },
+          ],
+        }
+      : {}),
+  };
 
   const customers = await prisma.customer.findMany({
-    where: { businessId: ctx.businessId },
+    where,
     orderBy: { createdAt: "desc" },
   });
 
@@ -34,10 +53,17 @@ export default async function CustomersPage() {
         <NewCustomer />
       </div>
 
+      <div className="mt-4">
+        <Filters searchValue={q} searchPlaceholder="Search name or phone…" />
+      </div>
+
       {customers.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-dashed border-black/15 dark:border-white/15 p-12 text-center text-black/50 dark:text-white/50">
-          No customers yet. They&apos;re added automatically when you create orders, or click{" "}
-          <b>New customer</b>.
+          {q ? (
+            "No customers match your search."
+          ) : (
+            <>They&apos;re added automatically when you create orders, or click <b>New customer</b>.</>
+          )}
         </div>
       ) : (
         <div className="mt-6 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950">

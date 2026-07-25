@@ -1,9 +1,21 @@
 import Link from "next/link";
 import { requireTenant } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import { getUsage } from "@/lib/orders";
 import { Icon } from "@/components/icons";
+import { Filters } from "@/components/Filters";
 import { StatusSelect } from "./StatusSelect";
+
+const STATUSES = [
+  "pending",
+  "confirmed",
+  "processing",
+  "shipped",
+  "delivered",
+  "returned",
+  "cancelled",
+] as const;
 
 const statusColor: Record<string, string> = {
   pending: "bg-zinc-500/15 text-zinc-600 dark:text-zinc-300",
@@ -17,14 +29,38 @@ const statusColor: Record<string, string> = {
 
 const bdt = (n: unknown) => "৳" + Number(n).toLocaleString("en-US");
 
-export default async function OrdersPage() {
+export default async function OrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; status?: string }>;
+}) {
   const { ctx } = await requireTenant();
+  const sp = await searchParams;
+  const q = (sp.q ?? "").trim();
+  const status = STATUSES.includes(sp.status as (typeof STATUSES)[number])
+    ? (sp.status as (typeof STATUSES)[number])
+    : undefined;
+
+  const where: Prisma.OrderWhereInput = {
+    businessId: ctx.businessId,
+    ...(status ? { status } : {}),
+    ...(q
+      ? {
+          OR: [
+            { code: { contains: q, mode: "insensitive" } },
+            { customer: { is: { name: { contains: q, mode: "insensitive" } } } },
+            { customer: { is: { phone: { contains: q } } } },
+          ],
+        }
+      : {}),
+  };
+
   const [orders, usage] = await Promise.all([
     prisma.order.findMany({
-      where: { businessId: ctx.businessId },
+      where,
       include: { customer: true, items: true },
       orderBy: { createdAt: "desc" },
-      take: 100,
+      take: 200,
     }),
     getUsage(ctx.businessId),
   ]);
@@ -54,6 +90,23 @@ export default async function OrdersPage() {
         )}
       </div>
 
+      <div className="mt-4">
+        <Filters
+          searchValue={q}
+          searchPlaceholder="Search code, customer, phone…"
+          selects={[
+            {
+              name: "status",
+              value: status ?? "",
+              options: [
+                { value: "", label: "All statuses" },
+                ...STATUSES.map((s) => ({ value: s, label: s })),
+              ],
+            },
+          ]}
+        />
+      </div>
+
       {usage.pct >= 80 && !limitReached && (
         <div className="mt-4 rounded-lg bg-amber-500/10 border border-amber-500/30 px-4 py-2 text-sm text-amber-700 dark:text-amber-300">
           ⚠️ You&apos;ve used {usage.pct}% of this month&apos;s order limit.
@@ -61,8 +114,8 @@ export default async function OrdersPage() {
       )}
 
       {orders.length === 0 ? (
-        <div className="mt-10 rounded-xl border border-dashed border-black/15 dark:border-white/15 p-12 text-center text-black/50 dark:text-white/50">
-          No orders yet. Use <b>+ New order</b> above to get started.
+        <div className="mt-6 rounded-xl border border-dashed border-black/15 dark:border-white/15 p-12 text-center text-black/50 dark:text-white/50">
+          {q || status ? "No orders match your filters." : "No orders yet. Use + New order above to get started."}
         </div>
       ) : (
         <div className="mt-6 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950">
