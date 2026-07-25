@@ -80,7 +80,11 @@ export default async function OrdersPage() {
             <tbody>
               {orders.map((o) => (
                 <tr key={o.id} className="border-t border-black/5 dark:border-white/5">
-                  <td className="px-4 py-3 font-mono">{o.code}</td>
+                  <td className="px-4 py-3 font-mono">
+                    <Link href={`/dashboard/orders/${o.id}`} className="text-indigo-500 hover:underline">
+                      {o.code}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3">
                     <div>{o.customer?.name ?? "—"}</div>
                     {o.customer?.phone && (
