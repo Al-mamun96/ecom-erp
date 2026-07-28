@@ -37,13 +37,13 @@ export function Sidebar({ businessName, userName }: { businessName: string; user
     <>
       {/* Mobile top bar */}
       <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 h-14 border-b border-black/10 dark:border-white/10 bg-[var(--background)]/80 backdrop-blur">
-        <button onClick={() => setOpen(true)} aria-label="Menu" className="p-1.5">
+        <button onClick={() => setOpen(true)} aria-label="Menu" className="p-1.5 shrink-0">
           <Icon name="menu" />
         </button>
-        <span className="font-bold bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">
+        <span className="flex-1 text-center truncate px-2 font-bold bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">
           {businessName}
         </span>
-        <div className="w-8" />
+        <div className="w-8 shrink-0" />
       </div>
 
       {/* Overlay */}
