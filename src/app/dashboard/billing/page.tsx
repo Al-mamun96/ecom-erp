@@ -82,7 +82,7 @@ export default async function BillingPage() {
       {invoices.length === 0 ? (
         <p className="mt-3 text-sm text-black/50 dark:text-white/50">No invoices yet.</p>
       ) : (
-        <div className="mt-3 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950">
+        <div className="mt-3 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900">
           <table className="w-full text-sm">
             <thead className="bg-black/[.03] dark:bg-white/[.03] text-left">
               <tr>

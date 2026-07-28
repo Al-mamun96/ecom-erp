@@ -35,7 +35,7 @@ export function AddTransaction() {
           onClick={() => setOpen(false)}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-white dark:bg-zinc-950 border border-black/10 dark:border-white/10 p-6 shadow-2xl"
+            className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-black/10 dark:border-white/10 p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-lg font-semibold">Add transaction</h2>

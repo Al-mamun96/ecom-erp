@@ -47,16 +47,15 @@ export default async function AccountsPage({
   const expense = Number(expenseAgg._sum.amount ?? 0);
   const net = sales + income - expense;
 
-  const cards: { label: string; value: string; icon: IconName; from: string; to: string }[] = [
-    { label: "Order sales", value: bdt(sales), icon: "bag", from: "from-blue-500", to: "to-cyan-500" },
-    { label: "Other income", value: bdt(income), icon: "coins", from: "from-emerald-500", to: "to-teal-600" },
-    { label: "Expenses", value: bdt(expense), icon: "wallet", from: "from-rose-500", to: "to-red-600" },
+  const cards: { label: string; value: string; icon: IconName; tint: string }[] = [
+    { label: "Order sales", value: bdt(sales), icon: "bag", tint: "text-sky-500 bg-sky-500/10" },
+    { label: "Other income", value: bdt(income), icon: "coins", tint: "text-emerald-500 bg-emerald-500/10" },
+    { label: "Expenses", value: bdt(expense), icon: "wallet", tint: "text-rose-500 bg-rose-500/10" },
     {
       label: "Net profit",
       value: bdt(net),
       icon: "chart",
-      from: net >= 0 ? "from-violet-500" : "from-red-500",
-      to: net >= 0 ? "to-purple-600" : "to-rose-600",
+      tint: net >= 0 ? "text-violet-500 bg-violet-500/10" : "text-red-500 bg-red-500/10",
     },
   ];
 
@@ -77,13 +76,13 @@ export default async function AccountsPage({
         {cards.map((c) => (
           <div
             key={c.label}
-            className="rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-5"
+            className="rounded-2xl border border-black/[0.06] dark:border-white/[0.08] bg-white dark:bg-slate-900 p-5 shadow-sm"
           >
-            <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${c.from} ${c.to} flex items-center justify-center text-white shadow-lg`}>
-              <Icon name={c.icon} />
+            <div className={`w-10 h-10 rounded-xl ${c.tint} flex items-center justify-center`}>
+              <Icon name={c.icon} width={18} height={18} />
             </div>
             <div className="mt-4 text-2xl font-bold tracking-tight">{c.value}</div>
-            <div className="text-xs text-black/50 dark:text-white/50">{c.label}</div>
+            <div className="text-xs text-[var(--muted)] mt-0.5">{c.label}</div>
           </div>
         ))}
       </div>
@@ -114,7 +113,7 @@ export default async function AccountsPage({
           )}
         </div>
       ) : (
-        <div className="mt-3 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950">
+        <div className="mt-3 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900">
           <table className="w-full text-sm">
             <thead className="bg-black/[.03] dark:bg-white/[.03] text-left">
               <tr>

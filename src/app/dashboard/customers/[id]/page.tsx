@@ -32,7 +32,7 @@ export default async function CustomerDetailPage({
       </Link>
 
       {/* Header card */}
-      <div className="mt-3 rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-6">
+      <div className="mt-3 rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900 p-6">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-lg font-semibold">
             {customer.name.charAt(0).toUpperCase()}
@@ -61,7 +61,7 @@ export default async function CustomerDetailPage({
       {customer.orders.length === 0 ? (
         <p className="mt-3 text-sm text-black/50 dark:text-white/50">No orders yet.</p>
       ) : (
-        <div className="mt-3 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950">
+        <div className="mt-3 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900">
           <table className="w-full text-sm">
             <thead className="bg-black/[.03] dark:bg-white/[.03] text-left">
               <tr>

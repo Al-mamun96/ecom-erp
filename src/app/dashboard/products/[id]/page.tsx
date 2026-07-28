@@ -39,7 +39,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         ← Products
       </Link>
 
-      <div className="mt-3 rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-6">
+      <div className="mt-3 rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900 p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold">{product.name}</h1>
@@ -67,7 +67,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       {soldItems.length === 0 ? (
         <p className="mt-3 text-sm text-black/50 dark:text-white/50">Not sold yet.</p>
       ) : (
-        <div className="mt-3 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950">
+        <div className="mt-3 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900">
           <table className="w-full text-sm">
             <thead className="bg-black/[.03] dark:bg-white/[.03] text-left">
               <tr>

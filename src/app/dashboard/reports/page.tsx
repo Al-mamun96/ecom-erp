@@ -89,12 +89,12 @@ export default async function ReportsPage({
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 5);
 
-  const kpis: { label: string; value: string; icon: IconName; from: string; to: string }[] = [
-    { label: "Sales", value: bdt(sales), icon: "bag", from: "from-blue-500", to: "to-cyan-500" },
-    { label: "Orders", value: `${orderCount}`, icon: "chart", from: "from-indigo-500", to: "to-violet-600" },
-    { label: "Income", value: bdt(income), icon: "coins", from: "from-emerald-500", to: "to-teal-600" },
-    { label: "Expense", value: bdt(expense), icon: "wallet", from: "from-rose-500", to: "to-red-600" },
-    { label: "Net", value: bdt(net), icon: "chart", from: net >= 0 ? "from-violet-500" : "from-red-500", to: net >= 0 ? "to-purple-600" : "to-rose-600" },
+  const kpis: { label: string; value: string; icon: IconName; tint: string }[] = [
+    { label: "Sales", value: bdt(sales), icon: "bag", tint: "text-sky-500 bg-sky-500/10" },
+    { label: "Orders", value: `${orderCount}`, icon: "chart", tint: "text-indigo-500 bg-indigo-500/10" },
+    { label: "Income", value: bdt(income), icon: "coins", tint: "text-emerald-500 bg-emerald-500/10" },
+    { label: "Expense", value: bdt(expense), icon: "wallet", tint: "text-rose-500 bg-rose-500/10" },
+    { label: "Net", value: bdt(net), icon: "chart", tint: net >= 0 ? "text-violet-500 bg-violet-500/10" : "text-red-500 bg-red-500/10" },
   ];
 
   const reportLinks: { href: string; title: string; desc: string; icon: IconName; color: string }[] = [
@@ -124,12 +124,12 @@ export default async function ReportsPage({
       {/* KPIs */}
       <div className="mt-6 grid gap-4 grid-cols-2 lg:grid-cols-5">
         {kpis.map((k) => (
-          <div key={k.label} className="rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-4">
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${k.from} ${k.to} flex items-center justify-center text-white shadow`}>
-              <Icon name={k.icon} width={18} height={18} />
+          <div key={k.label} className="rounded-2xl border border-black/[0.06] dark:border-white/[0.08] bg-white dark:bg-slate-900 p-4 shadow-sm">
+            <div className={`w-9 h-9 rounded-lg ${k.tint} flex items-center justify-center`}>
+              <Icon name={k.icon} width={17} height={17} />
             </div>
             <div className="mt-3 text-xl font-bold tracking-tight">{k.value}</div>
-            <div className="text-xs text-black/50 dark:text-white/50">{k.label}</div>
+            <div className="text-xs text-[var(--muted)] mt-0.5">{k.label}</div>
           </div>
         ))}
       </div>
@@ -140,7 +140,7 @@ export default async function ReportsPage({
           <Link
             key={r.href}
             href={`${r.href}?${qs}`}
-            className="rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-5 hover:border-foreground transition flex items-start gap-3"
+            className="rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900 p-5 hover:border-foreground transition flex items-start gap-3"
           >
             <span className={`w-10 h-10 rounded-xl flex items-center justify-center ${r.color}`}>
               <Icon name={r.icon} />
@@ -154,7 +154,7 @@ export default async function ReportsPage({
       </div>
 
       {/* Sales chart */}
-      <div className="mt-6 rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-5">
+      <div className="mt-6 rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
         <h2 className="font-semibold text-sm">Daily sales</h2>
         <div className="mt-4 overflow-x-auto">
           <svg viewBox={`0 0 720 230`} className="w-full min-w-[560px]" role="img">
@@ -185,7 +185,7 @@ export default async function ReportsPage({
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         {/* Status breakdown */}
-        <div className="rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-5">
+        <div className="rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
           <h2 className="font-semibold text-sm">Order status breakdown</h2>
           {totalOrders === 0 ? (
             <p className="mt-4 text-sm text-black/40 dark:text-white/40">No orders in range.</p>
@@ -210,7 +210,7 @@ export default async function ReportsPage({
         </div>
 
         {/* Top products */}
-        <div className="rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-5">
+        <div className="rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
           <h2 className="font-semibold text-sm">Top products (by revenue)</h2>
           {topProducts.length === 0 ? (
             <p className="mt-4 text-sm text-black/40 dark:text-white/40">No sales in range.</p>

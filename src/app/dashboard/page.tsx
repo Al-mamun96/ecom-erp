@@ -34,17 +34,11 @@ export default async function DashboardPage() {
 
   const revenue = revenueAgg._sum.total ?? 0;
 
-  const stats: {
-    label: string;
-    value: string;
-    icon: IconName;
-    from: string;
-    to: string;
-  }[] = [
-    { label: "Total sales", value: bdt(revenue), icon: "wallet", from: "from-violet-500", to: "to-purple-600" },
-    { label: "Orders this month", value: `${usage.used}`, icon: "bag", from: "from-blue-500", to: "to-cyan-500" },
-    { label: "Total orders", value: `${totalOrders}`, icon: "chart", from: "from-amber-500", to: "to-orange-500" },
-    { label: "Customers", value: `${customerCount}`, icon: "users", from: "from-emerald-500", to: "to-teal-600" },
+  const stats: { label: string; value: string; icon: IconName; tint: string }[] = [
+    { label: "Total sales", value: bdt(revenue), icon: "wallet", tint: "text-indigo-500 bg-indigo-500/10" },
+    { label: "Orders this month", value: `${usage.used}`, icon: "bag", tint: "text-sky-500 bg-sky-500/10" },
+    { label: "Total orders", value: `${totalOrders}`, icon: "chart", tint: "text-violet-500 bg-violet-500/10" },
+    { label: "Customers", value: `${customerCount}`, icon: "users", tint: "text-emerald-500 bg-emerald-500/10" },
   ];
 
   return (
@@ -68,13 +62,13 @@ export default async function DashboardPage() {
         {stats.map((s) => (
           <div
             key={s.label}
-            className="relative overflow-hidden rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-5"
+            className="group rounded-2xl border border-black/[0.06] dark:border-white/[0.08] bg-white dark:bg-slate-900 p-5 shadow-sm hover:shadow-md hover:border-black/10 dark:hover:border-white/15 transition"
           >
-            <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${s.from} ${s.to} flex items-center justify-center text-white shadow-lg`}>
-              <Icon name={s.icon} />
+            <div className={`w-10 h-10 rounded-xl ${s.tint} flex items-center justify-center`}>
+              <Icon name={s.icon} width={18} height={18} />
             </div>
             <div className="mt-4 text-2xl font-bold tracking-tight">{s.value}</div>
-            <div className="text-xs text-black/50 dark:text-white/50">{s.label}</div>
+            <div className="text-xs text-[var(--muted)] mt-0.5">{s.label}</div>
           </div>
         ))}
       </div>
@@ -116,7 +110,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Recent orders */}
-        <div className="lg:col-span-2 rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-6">
+        <div className="lg:col-span-2 rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900 p-6">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold">Recent orders</h2>
             <Link href="/dashboard/orders" className="text-sm text-indigo-500 hover:underline">

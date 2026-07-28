@@ -6,8 +6,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const admin = await requireAdmin();
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black text-[var(--foreground)]">
-      <header className="sticky top-0 z-20 h-14 flex items-center justify-between px-5 border-b border-black/10 dark:border-white/10 bg-white/80 dark:bg-zinc-950/80 backdrop-blur">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      <header className="sticky top-0 z-20 h-14 flex items-center justify-between px-5 border-b border-black/10 dark:border-white/10 bg-white/80 dark:bg-slate-900/80 backdrop-blur">
         <Link href="/admin" className="flex items-center gap-2 font-bold">
           <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-rose-500 to-red-600 text-white flex items-center justify-center text-sm">
             ★

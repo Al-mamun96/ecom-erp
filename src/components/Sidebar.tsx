@@ -58,7 +58,7 @@ export function Sidebar({ businessName, userName }: { businessName: string; user
       <aside
         className={`fixed lg:sticky top-0 z-50 lg:z-0 h-screen w-64 shrink-0 flex flex-col
           border-r border-black/10 dark:border-white/10
-          bg-white dark:bg-zinc-950
+          bg-white dark:bg-slate-900
           transition-transform duration-200
           ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >

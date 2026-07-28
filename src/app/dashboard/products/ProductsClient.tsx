@@ -50,7 +50,7 @@ export function ProductsClient({ products }: { products: ProductDTO[] }) {
           No products yet. Click <b>New product</b> to add your first item.
         </div>
       ) : (
-        <div className="mt-6 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950">
+        <div className="mt-6 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900">
           <table className="w-full text-sm">
             <thead className="bg-black/[.03] dark:bg-white/[.03] text-left">
               <tr>
@@ -125,7 +125,7 @@ function ProductDialog({ product, onClose }: { product: ProductDTO | null; onClo
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" onClick={onClose}>
       <div
-        className="w-full max-w-md rounded-2xl bg-white dark:bg-zinc-950 border border-black/10 dark:border-white/10 p-6 shadow-2xl"
+        className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-black/10 dark:border-white/10 p-6 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold">{isEdit ? "Edit product" : "New product"}</h2>

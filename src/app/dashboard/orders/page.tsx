@@ -118,7 +118,7 @@ export default async function OrdersPage({
           {q || status ? "No orders match your filters." : "No orders yet. Use + New order above to get started."}
         </div>
       ) : (
-        <div className="mt-6 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950">
+        <div className="mt-6 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900">
           <table className="w-full text-sm">
             <thead className="bg-black/[.03] dark:bg-white/[.03] text-left">
               <tr>

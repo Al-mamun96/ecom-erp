@@ -4,7 +4,7 @@ export function StatGrid({ stats }: { stats: { label: string; value: string }[] 
   return (
     <div className="mt-6 grid gap-4 grid-cols-2 lg:grid-cols-4">
       {stats.map((s) => (
-        <div key={s.label} className="rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-4">
+        <div key={s.label} className="rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900 p-4">
           <div className="text-xl font-bold tracking-tight">{s.value}</div>
           <div className="text-xs text-black/50 dark:text-white/50">{s.label}</div>
         </div>
@@ -32,7 +32,7 @@ export function ReportTable({
     );
   }
   return (
-    <div className="mt-4 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950">
+    <div className="mt-4 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900">
       <table className="w-full text-sm">
         <thead className="bg-black/[.03] dark:bg-white/[.03] text-left">
           <tr>

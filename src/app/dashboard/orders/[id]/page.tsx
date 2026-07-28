@@ -87,7 +87,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       </div>
 
       {/* Items */}
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950">
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900">
         <table className="w-full text-sm">
           <thead className="bg-black/[.03] dark:bg-white/[.03] text-left">
             <tr>
@@ -121,7 +121,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-5">
+    <section className="rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
       <h2 className="text-xs font-semibold uppercase tracking-wider text-black/50 dark:text-white/50">
         {title}
       </h2>

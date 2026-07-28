@@ -59,7 +59,7 @@ function CourierCard({ configured }: { configured: boolean }) {
 
 function Card({ title, desc, children }: { title: string; desc?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-zinc-950 p-6">
+    <section className="rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-slate-900 p-6">
       <h2 className="font-semibold">{title}</h2>
       {desc && <p className="text-sm text-black/50 dark:text-white/50">{desc}</p>}
       <div className="mt-4">{children}</div>
