@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Icon, type IconName } from "./icons";
+import { ThemeToggle } from "./ThemeToggle";
 import { logoutAction } from "@/app/(auth)/actions";
 
 type NavItem = {
@@ -43,7 +44,9 @@ export function Sidebar({ businessName, userName }: { businessName: string; user
         <span className="flex-1 text-center truncate px-2 font-bold bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">
           {businessName}
         </span>
-        <div className="w-8 shrink-0" />
+        <div className="shrink-0">
+          <ThemeToggle variant="icon" />
+        </div>
       </div>
 
       {/* Overlay */}
@@ -117,8 +120,9 @@ export function Sidebar({ businessName, userName }: { businessName: string; user
               <div className="text-[11px] text-black/40 dark:text-white/40 truncate">{businessName}</div>
             </div>
           </div>
+          <ThemeToggle />
           <form action={logoutAction}>
-            <button className="mt-1 w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-black/60 dark:text-white/60 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 transition">
+            <button className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-black/60 dark:text-white/60 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 transition">
               <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-black/5 dark:bg-white/5">
                 <Icon name="logout" width={18} height={18} />
               </span>

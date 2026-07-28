@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
-/* ---- Design tokens ---- */
+/* Drive `dark:` utilities from a data-theme attribute on <html> (manual toggle),
+   set before paint by the inline script in layout.tsx. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ---- Design tokens (light) ---- */
 :root {
   --background: #f6f7fb; /* soft slate-tinted canvas */
   --surface: #ffffff;
@@ -18,16 +22,15 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0e19; /* deep navy-slate */
-    --surface: #111726;
-    --foreground: #e5e9f0;
-    --muted: #94a3b8;
-    --border: #1e2637;
-    --primary: #6366f1;
-    --primary-strong: #4f46e5;
-  }
+/* ---- Design tokens (dark / deep) ---- */
+:root[data-theme="dark"] {
+  --background: #0a0e19; /* deep navy-slate */
+  --surface: #111726;
+  --foreground: #e5e9f0;
+  --muted: #94a3b8;
+  --border: #1e2637;
+  --primary: #6366f1;
+  --primary-strong: #4f46e5;
 }
 
 body {
