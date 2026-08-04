@@ -137,12 +137,21 @@ export async function createOrder(ctx: TenantContext, input: NewOrderInput) {
       },
     });
 
-    // 6. deduct stock for catalog-linked items (scoped to this tenant)
+    // 6. deduct stock for catalog-linked items (scoped to this tenant) + log movement
     for (const it of input.items) {
       if (it.productId) {
         await tx.product.updateMany({
           where: { id: it.productId, businessId: ctx.businessId },
           data: { stock: { decrement: it.qty } },
+        });
+        await tx.stockMovement.create({
+          data: {
+            businessId: ctx.businessId,
+            productId: it.productId,
+            delta: -it.qty,
+            reason: "sale",
+            reference: code,
+          },
         });
       }
     }

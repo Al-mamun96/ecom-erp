@@ -101,6 +101,15 @@ export async function updateOrderStatusAction(formData: FormData) {
             where: { id: it.productId, businessId: ctx.businessId },
             data: { stock: { increment: it.qty } },
           });
+          await tx.stockMovement.create({
+            data: {
+              businessId: ctx.businessId,
+              productId: it.productId,
+              delta: it.qty,
+              reason: "cancel",
+              reference: order.code,
+            },
+          });
         }
       }
     } else if (wasCancelled && !nowCancelled) {
@@ -109,6 +118,15 @@ export async function updateOrderStatusAction(formData: FormData) {
           await tx.product.updateMany({
             where: { id: it.productId, businessId: ctx.businessId },
             data: { stock: { decrement: it.qty } },
+          });
+          await tx.stockMovement.create({
+            data: {
+              businessId: ctx.businessId,
+              productId: it.productId,
+              delta: -it.qty,
+              reason: "sale",
+              reference: order.code,
+            },
           });
         }
       }

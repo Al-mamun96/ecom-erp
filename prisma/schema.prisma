@@ -36,6 +36,9 @@ model Business {
   transactions   Transaction[]
   employees      Employee[]
   salaryPayments SalaryPayment[]
+  suppliers      Supplier[]
+  purchases      Purchase[]
+  stockMovements StockMovement[]
 
   @@map("businesses")
 }
@@ -174,8 +177,10 @@ model Product {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  business Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  items    OrderItem[]
+  business      Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  items         OrderItem[]
+  purchaseItems PurchaseItem[]
+  movements     StockMovement[]
 
   @@index([businessId])
   @@map("products")
@@ -290,4 +295,82 @@ model SalaryPayment {
   @@index([businessId])
   @@index([employeeId])
   @@map("salary_payments")
+}
+
+// ---------------------------------------------------------------------------
+// Inventory: suppliers, purchases, stock movements
+// ---------------------------------------------------------------------------
+
+model Supplier {
+  id         String   @id @default(cuid())
+  businessId String
+  name       String
+  phone      String?
+  address    String?
+  note       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business  Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  purchases Purchase[]
+
+  @@index([businessId])
+  @@map("suppliers")
+}
+
+model Purchase {
+  id            String   @id @default(cuid())
+  businessId    String
+  code          String // PUR-#### unique per business
+  supplierId    String?
+  subtotal      Decimal  @db.Decimal(10, 2) @default(0)
+  discount      Decimal  @db.Decimal(10, 2) @default(0)
+  total         Decimal  @db.Decimal(10, 2) @default(0)
+  amountPaid    Decimal  @db.Decimal(10, 2) @default(0)
+  paymentStatus String   @default("due") // paid | partial | due
+  note          String?
+  date          DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  business Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  supplier Supplier?      @relation(fields: [supplierId], references: [id])
+  items    PurchaseItem[]
+
+  @@unique([businessId, code])
+  @@index([businessId])
+  @@map("purchases")
+}
+
+model PurchaseItem {
+  id         String  @id @default(cuid())
+  purchaseId String
+  productId  String?
+  name       String
+  cost       Decimal @db.Decimal(10, 2) // unit cost
+  qty        Int     @default(1)
+
+  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  product  Product? @relation(fields: [productId], references: [id])
+
+  @@index([purchaseId])
+  @@map("purchase_items")
+}
+
+model StockMovement {
+  id         String   @id @default(cuid())
+  businessId String
+  productId  String
+  delta      Int // +in / -out
+  reason     String // purchase | sale | cancel | adjustment | return
+  reference  String? // order/purchase code
+  note       String?
+  createdAt  DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([productId])
+  @@map("stock_movements")
 }
