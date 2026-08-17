@@ -257,3 +257,36 @@ app.libas.com   CNAME   <your-tunnel>.cfargotunnel.com
 
 Cloudflare terminates TLS in this case, so Caddy on-demand TLS is not required —
 a plain `reverse_proxy localhost:3000` on the tunnel origin is enough.
+
+---
+
+# Deploy on Coolify (Docker)
+
+The repo ships a `Dockerfile`, so Coolify can build and run it directly.
+
+1. **Database** — Coolify → New → Database → **PostgreSQL**. Copy its connection URL.
+2. **Application** — New → **Private GitHub Repo** → `Al-mamun96/ecom-erp`.
+   - Build pack: **Dockerfile**
+   - Port: **3000**
+3. **Environment variables** (Coolify UI):
+   ```
+   DATABASE_URL=<coolify postgres url>
+   AUTH_SECRET=<openssl rand -base64 32>
+   APP_URL=https://tizarbd.store
+   APP_HOSTS=tizarbd.store,www.tizarbd.store
+   ADMIN_EMAIL=you@tizarbd.store
+   ADMIN_PASSWORD=<strong>
+   COURIER_WEBHOOK_SECRET=<random>
+   ```
+   The container runs `prisma migrate deploy` on every boot, so schema stays current.
+4. **Domain** — add `https://tizarbd.store` in the app's Domains; Coolify issues SSL.
+5. **Seed once** — in the app's Terminal: `npx prisma db seed` (creates plans + super-admin).
+
+## Client custom domains on Coolify
+Coolify's proxy issues a cert per domain you add (no on-demand TLS needed):
+1. Client points DNS (`app.libas.com` CNAME/A) to the Coolify VPS.
+2. Add `https://app.libas.com` to the **same** app's Domains in Coolify (SSL + routing).
+3. Super-admin → set that tenant's **Domain** to `app.libas.com`.
+
+For subdomains of your own domain, add a wildcard domain `*.tizarbd.store` to the
+app once — then new tenants need only the super-admin hostname, nothing in Coolify.
