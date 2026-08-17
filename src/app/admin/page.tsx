@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
-import { activateInvoiceAction, setSubscriptionAction, resetMeterAction } from "./actions";
+import { activateInvoiceAction, setSubscriptionAction, resetMeterAction, setHostnameAction } from "./actions";
 
 const bdt = (n: unknown) => "৳" + Number(n).toLocaleString("en-US");
 const period = () => new Date().toISOString().slice(0, 7);
@@ -98,6 +98,7 @@ export default async function AdminPage() {
               <th className="px-4 py-3 font-medium">Business</th>
               <th className="px-4 py-3 font-medium">Owner</th>
               <th className="px-4 py-3 font-medium">Plan / status</th>
+              <th className="px-4 py-3 font-medium">Domain</th>
               <th className="px-4 py-3 font-medium text-right">Usage</th>
               <th className="px-4 py-3 font-medium">Manage</th>
             </tr>
@@ -131,6 +132,20 @@ export default async function AdminPage() {
                     >
                       {sub?.status ?? "none"}
                     </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <form action={setHostnameAction} className="flex items-center gap-1">
+                      <input type="hidden" name="businessId" value={b.id} />
+                      <input
+                        name="hostname"
+                        defaultValue={b.hostname ?? ""}
+                        placeholder="app.client.com"
+                        className="w-36 rounded-lg border border-black/15 dark:border-white/20 bg-transparent px-2 py-1 text-xs"
+                      />
+                      <button className="rounded-lg bg-foreground text-background px-2 py-1 text-xs font-medium">
+                        Save
+                      </button>
+                    </form>
                   </td>
                   <td className="px-4 py-3 text-right">
                     {used} / {limit}

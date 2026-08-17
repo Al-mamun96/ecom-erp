@@ -2,6 +2,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { readSession } from "@/lib/session";
+import { getBusinessByHost } from "@/lib/host";
 import type { TenantContext } from "@/lib/tenant";
 
 /** Current logged-in user (with business), or null. */
@@ -23,6 +24,11 @@ export async function requireTenant(): Promise<{
   if (!user) redirect("/login");
   if (user.role === "SUPER_ADMIN") redirect("/admin");
   if (!user.businessId) redirect("/login");
+
+  // On a client's custom domain, only that tenant's users may access the app.
+  const hostBusiness = await getBusinessByHost();
+  if (hostBusiness && hostBusiness.id !== user.businessId) redirect("/login");
+
   return {
     user,
     ctx: {

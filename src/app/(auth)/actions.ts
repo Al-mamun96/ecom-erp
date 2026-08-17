@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createSession, destroySession } from "@/lib/session";
+import { getBusinessByHost } from "@/lib/host";
 
 function slugify(s: string) {
   return (
@@ -41,6 +42,10 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
     return { error: parsed.error.issues[0]?.message ?? "Invalid details" };
   }
   const { businessName, name, email, password } = parsed.data;
+
+  // A client's custom domain isn't a public signup page.
+  const hostBusiness = await getBusinessByHost();
+  if (hostBusiness) return { error: "Signups aren't available on this domain — please log in." };
 
   const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
   if (existing) return { error: "An account with this email already exists — log in" };
@@ -104,6 +109,12 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
   const user = await prisma.user.findUnique({ where: { email: parsed.data.email.toLowerCase() } });
   if (!user || !(await bcrypt.compare(parsed.data.password, user.passwordHash))) {
     return { error: "Wrong email or password" };
+  }
+
+  // Domain isolation: on a client's custom domain only that tenant's users may log in.
+  const hostBusiness = await getBusinessByHost();
+  if (hostBusiness && user.role !== "SUPER_ADMIN" && user.businessId !== hostBusiness.id) {
+    return { error: "This account isn't registered on this domain." };
   }
 
   await createSession(user.id);

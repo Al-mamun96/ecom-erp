@@ -77,6 +77,28 @@ export async function setSubscriptionAction(formData: FormData) {
   revalidatePath("/admin");
 }
 
+/** Assign (or clear) a tenant's custom domain/subdomain. */
+export async function setHostnameAction(formData: FormData) {
+  await requireAdmin();
+  const businessId = String(formData.get("businessId") ?? "");
+  const raw = String(formData.get("hostname") ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/\/.*$/, "");
+  const hostname = raw || null;
+
+  // hostname is unique — free it from any other business first
+  if (hostname) {
+    await prisma.business.updateMany({
+      where: { hostname, NOT: { id: businessId } },
+      data: { hostname: null },
+    });
+  }
+  await prisma.business.update({ where: { id: businessId }, data: { hostname } });
+  revalidatePath("/admin");
+}
+
 /** Reset the tenant's current-month order meter to 0. */
 export async function resetMeterAction(formData: FormData) {
   await requireAdmin();

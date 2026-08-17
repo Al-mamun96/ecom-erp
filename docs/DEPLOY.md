@@ -190,3 +190,70 @@ Settings → Courier (stored AES-256-GCM encrypted).
   each billing month gets its own row automatically.
 - `APP_DEBUG`-style verbose logs are off in production (`NODE_ENV=production`).
 - One 2 GB VPS serves tens of shops; scale vertically first (see `docs/COST.md`).
+
+---
+
+# Custom domains per tenant (client's own domain/subdomain)
+
+The app is one instance serving many tenants. A client can reach their ERP on
+their **own** subdomain (`app.libas.com`) or root domain (`libasuliman.com`).
+The app resolves the tenant from the request's `Host` header (`Business.hostname`).
+
+## 1. App config
+Set the app's own hostnames (everything else is treated as a tenant domain):
+
+```
+APP_HOSTS="app.sufiya.shop,localhost"
+```
+
+Then in **super-admin → Tenants**, set each client's **Domain** field to their
+hostname (e.g. `app.libas.com`). Login on that domain is branded and isolated to
+that tenant; only that tenant's users can log in there.
+
+## 2. Reverse proxy with automatic HTTPS (Caddy)
+Caddy issues a TLS cert on demand for any hostname pointed at the server, but
+only if the app approves it (so random domains can't mint certs).
+
+`/etc/caddy/Caddyfile`:
+
+```
+{
+  email you@sufiya.shop
+  on_demand_tls {
+    ask http://localhost:3000/api/verify-domain
+  }
+}
+
+app.sufiya.shop {
+  reverse_proxy localhost:3000
+}
+
+# Any client custom domain -> on-demand certificate
+:443 {
+  tls { on_demand }
+  reverse_proxy localhost:3000
+}
+```
+
+`GET /api/verify-domain?domain=<host>` returns 200 only for APP_HOSTS or a
+mapped `Business.hostname`, so Caddy issues certs solely for known tenants.
+
+## 3. DNS the client adds
+| Client wants | Record |
+|---|---|
+| `app.libas.com` (subdomain) | `app` **CNAME** → `app.sufiya.shop` |
+| `libasuliman.com` (root)    | `@` **A** → your server IP |
+
+First visit to `https://app.libas.com` → Caddy asks the app → issues the cert →
+served. No per-domain server work beyond setting the hostname in super-admin.
+
+## If the server IP is geo-blocked (Cloudflare Tunnel)
+When the VPS IP can't be reached directly, route through a Cloudflare Tunnel and
+have clients CNAME to the tunnel hostname instead of A-record to the IP:
+
+```
+app.libas.com   CNAME   <your-tunnel>.cfargotunnel.com
+```
+
+Cloudflare terminates TLS in this case, so Caddy on-demand TLS is not required —
+a plain `reverse_proxy localhost:3000` on the tunnel origin is enough.

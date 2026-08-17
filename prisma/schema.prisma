@@ -18,6 +18,7 @@ model Business {
   id        String   @id @default(cuid())
   name      String
   slug      String   @unique
+  hostname  String?  @unique // custom domain/subdomain, e.g. app.libas.com
   phone     String?
   address   String?
   // Steadfast courier credentials (encrypted at rest — see src/lib/crypto.ts)
